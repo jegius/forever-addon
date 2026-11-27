@@ -85,7 +85,8 @@ function Auction:OnEvent(event, ...)
   elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_ADDED" then
     if scanning then
       local added = ...
-      self:ProcessResults(added)
+      local results = type(added) == "table" and added or C_AuctionHouse.GetBrowseResults()
+      self:ProcessResults(results)
     end
   elseif event == "AUCTION_HOUSE_BROWSE_FAILURE" then
     if scanning then
@@ -93,6 +94,13 @@ function Auction:OnEvent(event, ...)
     end
   end
 end
+function Auction:HasAPI()
+  local ah = C_AuctionHouse
+  return type(ah) == "table"
+    and type(ah.SendBrowseQuery) == "function"
+    and type(ah.GetBrowseResults) == "function"
+end
+
 function Auction:CanStart()
   if not ahOpen then
     return false, L("SCAN_NEED_AH")
@@ -104,7 +112,7 @@ function Auction:CanStart()
   if cooldown > 0 then
     return false, L("SCAN_COOLDOWN", math.ceil(cooldown / 60))
   end
-  if not C_AuctionHouse or not C_AuctionHouse.SendBrowseQuery then
+  if not self:HasAPI() then
     return false, L("NO_AH_API")
   end
   return true
@@ -199,7 +207,7 @@ function Auction:AddResults(results)
   end
 end
 function Auction:ProcessResults(results)
-  if not scanning then return end
+  if not scanning or not scan then return end
   scan.count = scan.count + (results and #results or 0)
   self:AddResults(results)
   if ns.UI then
@@ -217,6 +225,7 @@ function Auction:ProcessResults(results)
 end
 function Auction:RequestMore()
   if requestPending or not scanning then return end
+  if type(C_AuctionHouse.RequestMoreBrowseResults) ~= "function" then return end
   requestPending = true
   C_Timer.After(0.1, function()
     requestPending = false
@@ -226,7 +235,7 @@ function Auction:RequestMore()
   end)
 end
 function Auction:Finish()
-  if not scanning then return end
+  if not scanning or not scan then return end
   scanning = false
   requestPending = false
   setEvents(false)

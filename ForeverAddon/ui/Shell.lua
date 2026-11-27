@@ -195,7 +195,10 @@ function UI:RefreshScan()
   parts[#parts + 1] = L("SCAN_ITEMS", stats.items)
   parts[#parts + 1] = L("SCAN_DETAIL", stats.detailItems or 0)
   if stats.duration > 0 then
-    parts[#parts + 1] = string.format("%.2f с", stats.duration)
+    parts[#parts + 1] = L("SCAN_SECONDS", stats.duration)
+  end
+  if ns.catalogError then
+    parts[#parts + 1] = L("CATALOG_INVALID", ns.catalogError)
   end
   panel.stats:SetText(table.concat(parts, "\n"))
 

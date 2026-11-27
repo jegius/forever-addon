@@ -22,6 +22,7 @@ local DEFAULTS = {
     detailGearItems = 20,
     gearMinPrice = 5000,
     maxPriceEntries = 8000,
+    maxMetaEntries = 4000,
     capital = 100000,
     farmYield = 1.5,
     farmRespawn = 45,
@@ -74,6 +75,19 @@ local function trimPrices(db)
   end
 end
 
+local function trimMeta(db)
+  local meta = db.itemMeta
+  if not meta then return end
+  local limit = db.settings.maxMetaEntries or 4000
+  local ids = {}
+  for itemID in pairs(meta) do ids[#ids + 1] = itemID end
+  if #ids <= limit then return end
+  table.sort(ids, function(a, b)
+    return (meta[a] and meta[a].t or 0) < (meta[b] and meta[b].t or 0)
+  end)
+  for index = 1, #ids - limit do meta[ids[index]] = nil end
+end
+
 function DB:Init()
   if type(ForeverAddonDB) ~= "table" then ForeverAddonDB = {} end
   copyDefaults(DEFAULTS, ForeverAddonDB)
@@ -96,6 +110,7 @@ function DB:Prune()
     end
   end
   trimPrices(db)
+  trimMeta(db)
 end
 
 function DB:GetItem(itemID)
@@ -123,6 +138,7 @@ function DB:SetItemMeta(itemID, meta)
   local db = ns.db
   if not db or not itemID or not meta then return end
   db.itemMeta = db.itemMeta or {}
+  meta.t = meta.t or time()
   db.itemMeta[itemID] = meta
 end
 

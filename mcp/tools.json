@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "description": "Tool contracts for a local MCP/LLM advisor consuming ForeverAddonDB.exportJson. The addon makes no network calls.",
+  "input": {
+    "source": "ForeverAddonDB.exportJson",
+    "schema": {
+      "generatedAt": "number",
+      "schemaVersion": "number",
+      "health": "object",
+      "flips": "array",
+      "chains": "array",
+      "professions": "array",
+      "farming": "array",
+      "guardrails": "array"
+    }
+  },
+  "tools": [
+    {
+      "name": "market_health",
+      "description": "Return freshness, coverage and anomalies. Always include confidence and missing-data flags.",
+      "input": {},
+      "output": "object"
+    },
+    {
+      "name": "top_flips",
+      "description": "Rank flips by profit/ROI/confidence. Explain thin markets and possible manipulation.",
+      "input": { "limit": "number", "minROI": "number" },
+      "output": "array"
+    },
+    {
+      "name": "craft_plan",
+      "description": "Select craft/DE chains under a capital budget. Include expected profit, risk capital and assumptions.",
+      "input": { "budget": "number", "limit": "number" },
+      "output": "array"
+    },
+    {
+      "name": "profession_advice",
+      "description": "Suggest professions based on priced coverage and profitable chains.",
+      "input": { "limit": "number" },
+      "output": "array"
+    },
+    {
+      "name": "farming_plan",
+      "description": "Suggest farming zones/resources with nodes, score, value and limitations.",
+      "input": { "kind": "string", "limit": "number" },
+      "output": "array"
+    },
+    {
+      "name": "explain",
+      "description": "Explain a recommendation formula and its assumptions; never claim guaranteed profit.",
+      "input": { "kind": "string" },
+      "output": "string"
+    }
+  ],
+  "guardrails": [
+    "no guaranteed profit",
+    "always include confidence/range",
+    "flag thin markets and stale scans",
+    "never suggest automation, input injection or anti-cheat evasion",
+    "local-only by default; do not upload personal data"
+  ]
+}

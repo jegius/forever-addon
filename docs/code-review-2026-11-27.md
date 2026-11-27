@@ -1,4 +1,4 @@
-# Code review — ForeverAddon 1.1.0
+﻿# Code review — ForeverAddon 1.1.2
 
 Дата: 2026-11-27. Ревью проведено по коду в `ForeverAddon/` и по mock/CI-тестам.
 Формат: **Critical / High / Medium / Architecture / Roadmap**.
@@ -195,3 +195,23 @@ CI: `.github/workflows/tests.yml` — `luac5.1 -p`, лимит 300 строк, u
 Следующий риск — **API-события аукциона и тяжёлые синхронные расчёты на 2354 рецептах**;
 именно их нужно закрыть тестами и порционным расчётом перед тем, как считать аддон
 production-ready.
+
+## Обновление после roadmap-прохода
+
+Закрыто в коде после первичного ревью:
+
+- **H1/H8**: добавлены feature detection (`HasAPI`), guard для `GetBrowseResults`,
+  mock-тесты `tests/test_auction.lua` и `tests/test_detail.lua`.
+- **H5**: добавлены caps `maxMetaEntries`, pruning `itemMeta`; `DB:Prune` вызывается после
+  scan/detail, а не только при входе.
+- **Локализация**: `Money`, `IngredientSource`, `Charts`, `SCAN_SECONDS`, source fallback
+  переведены на `ns.L`; добавлены enUS-ключи. Остались `Advisor`/часть diagnostic-текстов.
+- **Архитектура**: `MarketService` разделён на `MarketStore`/`MarketQuery`; `ItemService` —
+  на `ItemMeta`/`Formatting`; `Core` — на `Init`/`Commands`.
+- **Catalog**: добавлен `CatalogMeta` с build/date/count/schema и проверкой целостности.
+- **Craft index**: статический, без полного пересчёта цепочек на tooltip.
+
+Осталось на следующие проходы: H2 (порционный `GetCatalogChains`), H3 (виртуализация UI),
+H6 (профилирование tooltip-хуков), H7 (мёртвый `StartScanAll`), MCP-инструменты поверх
+`exportJson`.
+

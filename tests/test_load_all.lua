@@ -26,6 +26,7 @@ end
 
 assert(loaded > 20, "TOC must load modules")
 assert(ctx.ns.UI and ctx.ns.Advisor and ctx.ns.Export, "public modules")
+assert(ctx.ns.CatalogMeta and ctx.ns.CatalogMeta.valid, "catalog integrity")
 assert(type(ctx.ns.UI.Init) == "function", "UI.Init")
 assert(type(ctx.ns.Recipes.GetCatalogChains) == "function", "Recipes API")
 assert(type(ctx.ns.PriceService.GetPriceStats) == "function", "Price API")

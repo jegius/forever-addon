@@ -1,9 +1,7 @@
 -- ForeverAddon — детальный скан лотов (лестницы цен через SendSearchQuery)
 local addonName, ns = ...
-
 local Detail = {}
 ns.Detail = Detail
-
 local frame = CreateFrame("Frame")
 local queue = {}
 local active = nil        -- itemID
@@ -17,11 +15,9 @@ local watchdog = nil
 local throttle = 0.8      -- лимит Blizzard 100 запросов/мин; держим 75/мин
 local MAX_LADDER = 400
 local lastRequestAt = 0
-
 local function now()
   return (GetTime and GetTime()) or time()
 end
-
 local function safe(fn, ...)
   if type(fn) ~= "function" then return nil end
   local ok, a, b, c = pcall(fn, ...)
@@ -61,12 +57,19 @@ function Detail:Progress()
   return done, total
 end
 
+function Detail:HasAPI()
+  local ah = C_AuctionHouse
+  return type(ah) == "table"
+    and type(ah.SendSearchQuery) == "function"
+    and type(ah.MakeItemKey) == "function"
+end
+
 function Detail:Scan(itemIDs, cb, label)
   if self:IsActive() then
     ns:Print(ns.L("DETAIL_BUSY"))
     return false
   end
-  if not (C_AuctionHouse and C_AuctionHouse.SendSearchQuery and C_AuctionHouse.MakeItemKey) then
+  if not self:HasAPI() then
     ns:Print(ns.L("NO_AH_API"))
     return false
   end
@@ -122,6 +125,10 @@ end
 
 function Detail:Next()
   if active then return end
+  if not self:HasAPI() then
+    self:Cancel(ns.L("NO_AH_API"))
+    return
+  end
   if ns.Auction and ns.Auction.IsOpen and not ns.Auction:IsOpen() then
     self:Cancel(ns.L("AH_CLOSED"))
     return

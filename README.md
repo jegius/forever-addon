@@ -7,7 +7,7 @@
 **Аддон ничего не нажимает, не читает экран и не управляет персонажем.** Он работает только с
 разрешённым игровым API и SavedVariables; все действия в игре выполняет человек.
 
-> **Статус: v1.1.1.** Архитектура разбита на сервисы; каждый Lua-файл ≤ 300 строк. Есть unit-тесты
+> **Статус: v1.1.2.** Архитектура разбита на сервисы; каждый Lua-файл ≤ 300 строк. Есть unit-тесты
 > и GitHub Actions. Код проверен статически и mock-тестами, в игре — ещё нет; сделайте бэкап `WTF`.
 > Ревью: [docs/code-review-2026-11-27.md](docs/code-review-2026-11-27.md).
 
@@ -81,9 +81,12 @@ ForeverAddon/
   config/Database.lua          — SavedVariables, schemaVersion, миграции, pruning
   data/CatalogData.lua         — метаданные каталога
   data/CatalogChunk_01..10.lua — каталог рецептов (по ≤300 строк)
-  util/ItemService.lua         — предметы, деньги, профессии
+  data/CatalogMeta.lua        — проверка целостности каталога
+  util/ItemMeta.lua            — предметы, классы, источники
+  util/Formatting.lua          — деньги, проценты, числа
   services/PriceService.lua    — volume-weighted median, p25/p75, MAD, confidence
-  services/MarketService.lua   — история, apply scan/detail, prune
+  services/MarketStore.lua     — запись истории/сканов, prune
+  services/MarketQuery.lua     — чтение, кандидаты, график, обёртки
   services/FlipService.lua     — флипы и группы фарма
   services/DisenchantService.lua — DE-таблицы и fallback
   services/FarmingService.lua  — зоны, сессии фарма
@@ -99,7 +102,9 @@ ForeverAddon/
   ui/State.lua, Widgets.lua, Sorting.lua, Panels.lua, Shell.lua,
   ui/Tooltips.lua, RefreshLists.lua, Chains.lua, RefreshCatalog.lua,
   ui/Guide.lua, Charts.lua
-  core/Core.lua                — события и slash-команды
+  core/Init.lua                — инициализация
+  core/Commands.lua            — slash-команды
+  mcp/tools.json               — контракт внешнего советника
 ```
 
 ## Ключевые формулы

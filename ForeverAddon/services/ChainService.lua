@@ -83,7 +83,10 @@ function Recipes:GetCatalogChains()
       local outputQty = recipe.q or 1
       local direct = outputPrice * outputQty * 0.95 - cost
       local best, mode = direct, "direct"
-      local de = ns.Disenchant and ns.Disenchant:Estimate(recipe.o, { category = recipe.c }) or nil
+      local de = nil
+      if ns.Util:IsGearClass(recipe.o) then
+        de = ns.Disenchant and ns.Disenchant:Estimate(recipe.o, { category = recipe.c }) or nil
+      end
       local deProfit
       if de and de.value > 0 then
         deProfit = de.value * outputQty * 0.95 - cost

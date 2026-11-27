@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.2
+
+- Auction/Detail feature detection + mock integration tests.
+- DB caps for itemMeta, prune after scan/detail.
+- Localization: Money, ingredient sources, chart subtitle, scan duration, source fallback.
+- Architecture: MarketStore/MarketQuery, ItemMeta/Formatting, core Init/Commands.
+- CatalogMeta integrity check (build/date/count/schema).
+- Static craft-use index and gear-only DE in catalog chains.
+- MCP tool contract (`mcp/tools.json`).
+
 ## 1.1.1
 
 - Code review fixes: `MarketService` missing `nowDay`, `RecipeService` missing

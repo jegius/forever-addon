@@ -19,6 +19,13 @@ ns.DB:SetItemMeta(4, { itemLevel = 60, quality = 2, classID = 4 })
 local meta = ns.DB:GetItemMeta(4)
 assert(meta.itemLevel == 60 and meta.quality == 2, "meta roundtrip")
 
+ns.db.settings.maxMetaEntries = 2
+for index = 1, 3 do ns.DB:SetItemMeta(100 + index, { itemLevel = index, t = index }) end
+ns.DB:Prune()
+local metaCount = 0
+for _ in pairs(ns.db.itemMeta) do metaCount = metaCount + 1 end
+assert(metaCount <= 2, "item meta capped")
+
 local old = math.floor(time() / 86400) - 100
 ns.db.prices[4].history[old] = { min = 1 }
 ns.DB:Prune()

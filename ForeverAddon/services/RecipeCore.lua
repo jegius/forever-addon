@@ -25,7 +25,7 @@ local SOURCE_LABELS = {
 local function sourceLabel(sourceType)
   if sourceType == nil then return "—" end
   local key = SOURCE_LABELS[sourceType]
-  return key and L(key) or ("источник " .. tostring(sourceType))
+  return key and L(key) or L("SOURCE_OTHER", sourceType)
 end
 
 local function safeCall(fn, ...)

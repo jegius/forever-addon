@@ -1,0 +1,10 @@
+local ns = assert(dofile("tests/bootstrap.lua"))
+local mock = dofile("tests/mock_wow.lua")
+
+assert(ns.CatalogMeta and ns.CatalogMeta.valid, "catalog metadata")
+assert(ns.Util:Money(10000, true) == "1g", "localized gold")
+assert(ns.Util:Money(150, true) == "1s 50c", "localized silver/copper")
+mock.setItem(2318, "Light Leather", 1, 1, 7, 6)
+local index = ns.Recipes:GetCraftUseIndex()
+assert(index[2318] == true, "static craft-use index")
+print("util/catalog tests OK")

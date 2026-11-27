@@ -20,6 +20,7 @@ _G.UIParent = object()
 function _G.CreateFrame() return object() end
 function _G.GetLocale() return "enUS" end
 function _G.time() return os.time() end
+function _G.GetTime() return os.clock() end
 function _G.date(fmt, t) return os.date(fmt, t) end
 function _G.wipe(t) for k in pairs(t) do t[k] = nil end return t end
 function _G.tinsert(t, v) t[#t + 1] = v return v end
@@ -52,6 +53,14 @@ _G.C_Container = {
 }
 _G.GetInventoryItemLink = function() return nil end
 _G.GameTooltip = object()
+_G.C_Timer = {
+  After = function(_, fn) if fn then pcall(fn) end end,
+  NewTimer = function(delay, fn)
+    if delay and delay <= 1 and fn then pcall(fn) end
+    return { Cancel = function() end }
+  end,
+}
+_G.C_AuctionHouse = {}
 
 function ns.Load(root, addonName)
   local self = { root = root, addonName = addonName, api = {} }

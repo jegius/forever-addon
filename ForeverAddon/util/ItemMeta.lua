@@ -1,7 +1,8 @@
--- ForeverAddon — утилиты: предметы, деньги, форматирование
+-- ForeverAddon — item metadata
 local addonName, ns = ...
 local Util = {}
 ns.Util = Util
+
 local itemCache = {}
 local classCache = {}
 local pending = {}
@@ -178,22 +179,22 @@ end
 -- Где брать ингредиент: профессия/источник по классу и подклассу предмета.
 function Util:IngredientSource(itemID)
   local classID = self:ItemClass(itemID)
-  if classID == 2 or classID == 4 then return "экипировка" end
-  if classID == 9 then return "рецепт" end
-  if classID == 0 then return "расходник" end
+  if classID == 2 or classID == 4 then return ns.L("ING_SOURCE_ARMOR") end
+  if classID == 9 then return ns.L("ING_SOURCE_RECIPE") end
+  if classID == 0 then return ns.L("ING_SOURCE_CONSUMABLE") end
   local subclass = tostring(self:ItemSubclassName(itemID) or ""):lower()
-  if subclass:find("herb") or subclass:find("трав") then return "травничество" end
+  if subclass:find("herb") or subclass:find("трав") then return ns.L("ING_SOURCE_HERB") end
   if subclass:find("metal") or subclass:find("руд") or subclass:find("металл") or subclass:find("камен") then
-    return "горное дело"
+    return ns.L("ING_SOURCE_MINING")
   end
-  if subclass:find("leather") or subclass:find("кож") then return "кожевничество" end
-  if subclass:find("cloth") or subclass:find("ткан") then return "ткань" end
+  if subclass:find("leather") or subclass:find("кож") then return ns.L("ING_SOURCE_LEATHER") end
+  if subclass:find("cloth") or subclass:find("ткан") then return ns.L("ING_SOURCE_CLOTH") end
   if subclass:find("cooking") or subclass:find("кулин") or subclass:find("fish") or subclass:find("рыб") then
-    return "кулинария/рыбалка"
+    return ns.L("ING_SOURCE_COOKING")
   end
-  if subclass:find("enchant") or subclass:find("чар") then return "наложение чар" end
-  if subclass:find("jewel") or subclass:find("ювелир") then return "ювелирное дело" end
-  return self:ItemSubclassName(itemID) or "аукцион/фарм"
+  if subclass:find("enchant") or subclass:find("чар") then return ns.L("ING_SOURCE_ENCHANT") end
+  if subclass:find("jewel") or subclass:find("ювелир") then return ns.L("ING_SOURCE_JEWEL") end
+  return self:ItemSubclassName(itemID) or ns.L("ING_SOURCE_AUCTION")
 end
 
 local PROFESSION_RU = {
@@ -242,59 +243,3 @@ function Util:FromLink(link)
   return itemID and tonumber(itemID) or nil
 end
 
-function Util:Money(copper, short)
-  copper = math.floor((copper or 0) + 0.5)
-  local gold = math.floor(copper / 10000)
-  local silver = math.floor((copper % 10000) / 100)
-  local copperRest = copper % 100
-  if short then
-    if gold > 0 then
-      if silver > 0 then
-        return string.format("%dг %dс", gold, silver)
-      end
-      return string.format("%dг", gold)
-    elseif silver > 0 then
-      if copperRest > 0 then
-        return string.format("%dс %dм", silver, copperRest)
-      end
-      return string.format("%dс", silver)
-    end
-    return string.format("%dм", copperRest)
-  end
-  if gold > 0 then
-    return string.format("%dг %dс %dм", gold, silver, copperRest)
-  elseif silver > 0 then
-    return string.format("%dс %dм", silver, copperRest)
-  end
-  return string.format("%dм", copperRest)
-end
-
-function Util:Percent(value)
-  return string.format("%.1f%%", (value or 0) * 100)
-end
-
-function Util:Round(value, digits)
-  local mult = 10 ^ (digits or 0)
-  return math.floor(value * mult + 0.5) / mult
-end
-
-function Util:Clamp(value, low, high)
-  if value < low then return low end
-  if value > high then return high end
-  return value
-end
-
-function Util:TableSize(tbl)
-  local count = 0
-  for _ in pairs(tbl or {}) do count = count + 1 end
-  return count
-end
-
-function Util:FormatNumber(value)
-  if value >= 1000000 then
-    return string.format("%.1fM", value / 1000000)
-  elseif value >= 1000 then
-    return string.format("%.1fk", value / 1000)
-  end
-  return string.format("%d", value)
-end

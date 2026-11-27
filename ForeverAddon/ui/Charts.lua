@@ -26,7 +26,7 @@ function Charts:Init(parent)
 
   self.subtitle = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
   self.subtitle:SetPoint("TOPLEFT", 12, -32)
-  self.subtitle:SetText("мин. цена, медь")
+  self.subtitle:SetText(L("CHART_SUBTITLE"))
 
   self.canvas = CreateFrame("Frame", nil, parent)
   self.canvas:SetPoint("TOPLEFT", 12, -52)
