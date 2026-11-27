@@ -27,7 +27,10 @@ function FlipService:GetDetailFlips(limit)
           flips[#flips + 1] = {
             itemID = itemID,
             buy = detail.min,
+            current = detail.min,
             market = detail.resale,
+            median = stats and stats.median or detail.p50,
+            targetKind = "resale",
             profit = profit,
             roi = roi,
             qty = qty,
@@ -35,6 +38,7 @@ function FlipService:GetDetailFlips(limit)
             confidence = confidence,
             score = profit * (1 + math.min(qty, 50) / 50) * confidence,
             source = "detail",
+            saleSignal = entry.lastDelta and entry.lastDelta > 0 or false,
           }
         end
       end
@@ -76,13 +80,17 @@ function FlipService:GetFlips(limit)
             flips[#flips + 1] = {
               itemID = itemID,
               buy = buy,
+              current = buy,
               market = market,
+              median = stats and stats.median or market,
+              targetKind = "median",
               profit = profit,
               roi = roi,
               qty = qty,
               days = days,
               confidence = confidence,
               score = score,
+              saleSignal = entry.lastDelta and entry.lastDelta > 0 or false,
             }
           end
         end

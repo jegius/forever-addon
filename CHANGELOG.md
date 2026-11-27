@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.6
+
+- UI: shorter tab labels and small font to stop overlap.
+- Guide modal: parented to addon window, above it, no bottom button (top close only).
+- Advisor: real popup window instead of chat-only output; error capture.
+- Scan dashboard: best flip (current/median/target/profit) and best chain.
+- Flips: explicit target, current min, median, and `*` supply-change marker;
+  sale vs cancellation is documented as indistinguishable via API.
+- Locale trim to keep files <=300 lines.
+
 ## 1.2.5
 
 - Clear `uiError` on successful UI init (was saved as the string `"nil"`).

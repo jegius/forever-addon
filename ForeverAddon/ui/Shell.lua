@@ -79,8 +79,12 @@ function UI:Init()
   }
 
   for index, definition in ipairs(tabDefinitions) do
-    local button = UI.SafeCreateButton(frame, definition.label, 78)
+    local button = UI.SafeCreateButton(frame, definition.label, 82)
     button:SetPoint("TOPLEFT", 12 + (index - 1) * 86, -32)
+    if button.GetFontString then
+      local fontString = button:GetFontString()
+      if fontString and fontString.SetFontObject then fontString:SetFontObject(GameFontNormalSmall) end
+    end
     button:SetScript("OnClick", function() UI:SetTab(definition.key) end)
     button:SetScript("OnEnter", function()
       if not GameTooltip then return end
@@ -215,6 +219,27 @@ function UI:RefreshScan()
     parts[#parts + 1] = L("CATALOG_INVALID", ns.catalogError)
   end
   panel.stats:SetText(table.concat(parts, "\n"))
+
+  local summary = {}
+  local flipOk, flips = pcall(ns.Market.GetFlips, ns.Market, 3)
+  if flipOk and flips and flips[1] then
+    local top = flips[1]
+    summary[#summary + 1] = L("DASH_FLIP", top.name, ns.Util:Money(top.current or top.buy, true),
+      ns.Util:Money(top.median or top.market, true), ns.Util:Money(top.market, true),
+      ns.Util:Money(top.profit, true))
+  end
+  local chains = ns.Recipes:GetCatalogChains()
+  if chains and chains[1] then
+    local top = chains[1]
+    summary[#summary + 1] = L("DASH_CHAIN", top.name, ns.Util:Money(top.cost, true),
+      ns.Util:Money(top.profit, true))
+  elseif ns.Recipes:IsCatalogChainsBuilding() then
+    summary[#summary + 1] = L("DASH_CHAINS_BUILDING")
+  end
+  if #summary == 0 then summary[1] = L("DASH_NO_DATA") end
+  if panel.summary then
+    panel.summary:SetText(table.concat(summary, "\n") .. "\n" .. L("DASH_PRICE_NOTE"))
+  end
 
   if stats.lastScan > 0 then
     panel.last:SetText(L("LAST_SCAN", date("%d.%m.%Y %H:%M", stats.lastScan)))

@@ -178,6 +178,7 @@ function UI.CreateHeader(panel, columns, keys, tabKey, tips)
     local label = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     label:SetAllPoints(button)
     label:SetJustifyH(index == 1 and "LEFT" or "RIGHT")
+    label:SetWordWrap(false)
     label:SetText(text)
     panel.headerButtons[index] = { button = button, label = label, text = text, key = key }
     if key and tabKey then

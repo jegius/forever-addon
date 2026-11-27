@@ -13,39 +13,46 @@ function UI:BuildScanPanel(panel)
   panel.status:SetJustifyH("LEFT")
 
   panel.stats = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-  panel.stats:SetPoint("TOPLEFT", 4, -80)
+  panel.stats:SetPoint("TOPLEFT", 4, -60)
   panel.stats:SetWidth(700)
   panel.stats:SetJustifyH("LEFT")
 
+  panel.summary = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+  panel.summary:SetPoint("TOPLEFT", 4, -112)
+  panel.summary:SetWidth(700)
+  panel.summary:SetHeight(56)
+  panel.summary:SetJustifyH("LEFT")
+  panel.summary:SetJustifyV("TOP")
+
   panel.last = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-  panel.last:SetPoint("TOPLEFT", 4, -140)
+  panel.last:SetPoint("TOPLEFT", 4, -176)
   panel.last:SetText(L("NO_DATA"))
 
   panel.button = UI.SafeCreateButton(panel, L("SCAN_BTN"), 220)
   panel.button:SetSize(220, 30)
-  panel.button:SetPoint("TOPLEFT", 4, -180)
+  panel.button:SetPoint("TOPLEFT", 4, -204)
   panel.button:SetScript("OnClick", function()
     ns.Auction:StartScan()
   end)
 
   panel.advice = UI.SafeCreateButton(panel, L("SCAN_BTN_ADVICE"), 180)
   panel.advice:SetSize(180, 30)
-  panel.advice:SetPoint("TOPLEFT", 232, -180)
+  panel.advice:SetPoint("TOPLEFT", 232, -204)
   panel.advice:SetScript("OnClick", function()
-    for _, line in ipairs(ns.Advisor:Report()) do ns:Print(line) end
+    UI:ShowAdvice()
   end)
 
-  panel.hint = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-  panel.hint:SetPoint("TOPLEFT", 4, -228)
-  panel.hint:SetWidth(700)
-  panel.hint:SetJustifyH("LEFT")
-  panel.hint:SetText(L("SCAN_NEED_AH"))
-
   panel.detail = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-  panel.detail:SetPoint("TOPLEFT", 4, -206)
+  panel.detail:SetPoint("TOPLEFT", 4, -240)
   panel.detail:SetWidth(700)
   panel.detail:SetJustifyH("LEFT")
   panel.detail:SetText(UI.detailStatusText or "")
+
+  panel.hint = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+  panel.hint:SetPoint("TOPLEFT", 4, -266)
+  panel.hint:SetWidth(700)
+  panel.hint:SetJustifyH("LEFT")
+  panel.hint:SetText(L("SCAN_NEED_AH"))
 end
 
 function UI:BuildFlipsPanel(panel)

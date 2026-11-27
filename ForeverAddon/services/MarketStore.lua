@@ -58,6 +58,7 @@ function Market:ApplyScan(scanData, rows, elapsed)
         db.prices[itemID] = entry
       end
 
+      local previousQty = entry.last and entry.last.qty or nil
       entry.last = {
         min = data.min,
         qty = data.qty or 0,
@@ -65,6 +66,7 @@ function Market:ApplyScan(scanData, rows, elapsed)
         key = data.key,
         gear = data.gear,
       }
+      entry.lastDelta = previousQty and (previousQty - (data.qty or 0)) or 0
 
       if ns.Util:IsTrackedItem(itemID) then
         tracked = tracked + 1

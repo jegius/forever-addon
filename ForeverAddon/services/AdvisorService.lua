@@ -147,6 +147,15 @@ function Advisor:Report()
       percent(flip.roi), (flip.confidence or 0) * 100)
   end
   if #flips == 0 then lines[#lines + 1] = L("ADVICE_NO_FLIPS") end
+
+  local chains = ns.Recipes:GetCatalogChains()
+  if chains and chains[1] then
+    local top = chains[1]
+    lines[#lines + 1] = L("ADVICE_CHAIN", top.name, money(top.cost), money(top.profit))
+  elseif ns.Recipes:IsCatalogChainsBuilding() then
+    lines[#lines + 1] = L("ADVICE_BUILDING")
+  end
+  lines[#lines + 1] = L("ADVICE_SALE_NOTE")
   for _, guardrail in ipairs(GUARDRAILS) do lines[#lines + 1] = L(guardrail) end
   return lines
 end

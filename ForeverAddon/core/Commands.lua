@@ -118,7 +118,8 @@ local function command(msg)
     ns.UI:PrintBagDiagnostics()
 
   elseif cmd == "advice" or cmd == "advisor" then
-    for _, line in ipairs(ns.Advisor:Report()) do ns:Print(line) end
+    ns.UI:Open()
+    ns.UI:ShowAdvice()
 
   elseif cmd == "export" then
     local json = ns.Export:Store()
