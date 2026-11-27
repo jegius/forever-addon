@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.4
+
+- Live UI init marker: `uiInitialized`/`uiError` saved in SavedVariables.
+
 ## 1.2.3
 
 - Fixed `MarkItem` texture lookup under metatable-based UI mocks; added data-driven

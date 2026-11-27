@@ -2,7 +2,7 @@
 ## Title: ForeverAddon
 ## Notes: Auction house analyst and gold-making helper for World of Warcraft: Forever: price scans, flips, charts, recipe and farming estimates.
 ## Notes-ruRU: Аналитик аукциона и помощник заработка для World of Warcraft: Forever: сканы цен, флипы, графики, оценка рецептов и фарма.
-## Version: 1.2.3
+## Version: 1.2.4
 ## SavedVariables: ForeverAddonDB
 
 locales/ruRU.lua

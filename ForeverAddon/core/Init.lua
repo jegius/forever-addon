@@ -16,7 +16,12 @@ frame:SetScript("OnEvent", function(_, event, arg)
     ns.Auction:Init()
     ns.Detail:Init()
     ns.Recipes:Init()
-    ns.UI:Init()
+    local uiOk, uiErr = pcall(ns.UI.Init, ns.UI)
+    if ns.db then
+      ns.db.uiInitialized = uiOk
+      ns.db.uiError = uiOk and nil or tostring(uiErr)
+    end
+    if not uiOk then ns:Print("UI init: " .. tostring(uiErr)) end
     ns:Print(ns.L("LOADED"))
 
   elseif event == "PLAYER_LOGIN" then
