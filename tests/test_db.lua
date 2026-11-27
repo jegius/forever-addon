@@ -12,7 +12,7 @@ ForeverAddonDB = {
 }
 ns.DB:Init()
 assert(ns.db.schemaVersion == 2, "migration to schema 2")
-assert(ns.db.addonVersion == "1.2.4", "addon version marker")
+assert(ns.db.addonVersion == "1.2.5", "addon version marker")
 assert(ns.db.loadCount and ns.db.loadCount >= 1, "load counter")
 assert(ns.DB:GetSizeApprox() <= 3, "price entries must be trimmed")
 assert(ns.DB:GetItemMeta(4) == nil, "meta starts empty")

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.5
+
+- Clear `uiError` on successful UI init (was saved as the string `"nil"`).
+
 ## 1.2.4
 
 - Live UI init marker: `uiInitialized`/`uiError` saved in SavedVariables.

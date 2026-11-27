@@ -19,7 +19,11 @@ frame:SetScript("OnEvent", function(_, event, arg)
     local uiOk, uiErr = pcall(ns.UI.Init, ns.UI)
     if ns.db then
       ns.db.uiInitialized = uiOk
-      ns.db.uiError = uiOk and nil or tostring(uiErr)
+      if uiOk then
+        ns.db.uiError = nil
+      else
+        ns.db.uiError = tostring(uiErr)
+      end
     end
     if not uiOk then ns:Print("UI init: " .. tostring(uiErr)) end
     ns:Print(ns.L("LOADED"))
