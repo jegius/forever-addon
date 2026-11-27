@@ -54,6 +54,8 @@ function Export:Build()
     chains = chains,
     professions = advisor and advisor:ProfessionAdvice(12) or {},
     farming = advisor and advisor:FarmingPlan() or {},
+    sales = ns.SaleTracker and ns.SaleTracker:GetTotals() or {},
+    saleEvents = ns.SaleTracker and ns.SaleTracker:GetRecent(20) or {},
     guardrails = {
       "estimates only",
       "verify volume, competition and scan age",

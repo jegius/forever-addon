@@ -266,7 +266,6 @@ ns.LocaleTables.enUS = {
   ADVICE_EMPTY = "No data yet. Run /fa scan and /fa detail.",
   DASH_FLIP = "Best flip: %s — current %s, median %s, target %s, profit %s",
   DASH_CHAIN = "Best chain: %s — cost %s, profit %s",
-  DASH_CHAINS_BUILDING = "Chains: building in chunks…",
   DASH_NO_DATA = "No data: run an auction scan and a detail scan.",
   DASH_PRICE_NOTE = "Target is median/next lot; sale is not guaranteed.",
   ADVICE_STALE = "Scan is older than 24h — run /fa scan.",
@@ -275,6 +274,8 @@ ns.LocaleTables.enUS = {
   ADVICE_CHAIN = "Best chain: %s — cost %s, profit %s",
   ADVICE_BUILDING = "Chains: building in chunks…",
   ADVICE_SALE_NOTE = "Supply changes do not reveal whether an item sold or was cancelled; the API cannot distinguish them. Sale probability is a heuristic.",
+  ADVICE_SALES = "My auction mail: sold %d, returned %d, purchases %d",
+  ADVICE_SALES_NOTE = "Only your own auctions from mail; other sellers' sale vs cancel is indistinguishable.",
   ADVICE_GUARD_ESTIMATE = "This is an estimate, not guaranteed profit.",
   ADVICE_GUARD_VERIFY = "Verify volume, competition and scan age.",
   ADVICE_GUARD_DATA = "No data — no recommendation; run /fa scan.",
@@ -294,7 +295,6 @@ ns.LocaleTables.enUS = {
   COMMAND_REPORT_PROFIT = "%s: profit %s (%s)",
   COMMAND_FARM_START = "Farming session started.",
   COMMAND_FARM_STOP = "Farming: %s, %s/h",
+  COMMAND_MAIL = "Mail: +%d messages; sold %d, returned %d, purchases %d. Open the mailbox, then /fa mail.",
   COMMAND_FARM_NONE = "No active farming session.",
 }
-
-

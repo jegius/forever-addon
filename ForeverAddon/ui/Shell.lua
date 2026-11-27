@@ -234,7 +234,7 @@ function UI:RefreshScan()
     summary[#summary + 1] = L("DASH_CHAIN", top.name, ns.Util:Money(top.cost, true),
       ns.Util:Money(top.profit, true))
   elseif ns.Recipes:IsCatalogChainsBuilding() then
-    summary[#summary + 1] = L("DASH_CHAINS_BUILDING")
+    summary[#summary + 1] = L("CHAIN_BUILDING")
   end
   if #summary == 0 then summary[1] = L("DASH_NO_DATA") end
   if panel.summary then
@@ -287,4 +287,5 @@ function UI:Open()
     self:Refresh()
   end
 end
+
 

@@ -16,6 +16,7 @@ frame:SetScript("OnEvent", function(_, event, arg)
     ns.Auction:Init()
     ns.Detail:Init()
     ns.Recipes:Init()
+    ns.SaleTracker:Init()
     local uiOk, uiErr = pcall(ns.UI.Init, ns.UI)
     if ns.db then
       ns.db.uiInitialized = uiOk

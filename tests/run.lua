@@ -11,6 +11,7 @@ local tests = {
   "tests/test_util.lua",
   "tests/test_advisor.lua",
   "tests/test_farming.lua",
+  "tests/test_sales.lua",
   "tests/test_load_all.lua",
   "tests/test_ui_smoke.lua",
   "tests/test_ui_data.lua",

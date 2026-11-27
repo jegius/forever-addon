@@ -92,7 +92,7 @@ function DB:Init()
   if type(ForeverAddonDB) ~= "table" then ForeverAddonDB = {} end
   copyDefaults(DEFAULTS, ForeverAddonDB)
   migrate(ForeverAddonDB)
-  ForeverAddonDB.addonVersion = "1.2.6"
+  ForeverAddonDB.addonVersion = "1.2.7"
   ForeverAddonDB.loadCount = (ForeverAddonDB.loadCount or 0) + 1
   ForeverAddonDB.lastLoadAt = time()
   ns.db = ForeverAddonDB

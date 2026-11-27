@@ -117,6 +117,12 @@ local function command(msg)
   elseif cmd == "bagtest" then
     ns.UI:PrintBagDiagnostics()
 
+  elseif cmd == "mail" then
+    local added = ns.SaleTracker:ScanInbox()
+    local totals = ns.SaleTracker:GetTotals()
+    ns:Print(ns.L("COMMAND_MAIL", added, totals.sold, totals.returned, totals.purchase))
+    ns:Print(ns.L("ADVICE_SALES_NOTE"))
+
   elseif cmd == "advice" or cmd == "advisor" then
     ns.UI:Open()
     ns.UI:ShowAdvice()

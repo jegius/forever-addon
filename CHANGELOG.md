@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.7
+
+- SaleTracker: scans auction mail; distinguishes your **sold** vs **returned**
+  (cancel/expiry) vs **purchase**; `/fa mail`.
+- Advisor shows your mail totals; MCP exposes `saleStats`/`saleEvents` and `fa_sales`.
+- Market-wide sale vs cancel remains an explicit heuristic.
+
 ## 1.2.6
 
 - UI: shorter tab labels and small font to stop overlap.

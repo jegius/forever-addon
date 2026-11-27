@@ -148,6 +148,14 @@ function Advisor:Report()
   end
   if #flips == 0 then lines[#lines + 1] = L("ADVICE_NO_FLIPS") end
 
+  if ns.SaleTracker then
+    local totals = ns.SaleTracker:GetTotals()
+    if (totals.sold + totals.returned + totals.purchase) > 0 then
+      lines[#lines + 1] = L("ADVICE_SALES", totals.sold, totals.returned, totals.purchase)
+      lines[#lines + 1] = L("ADVICE_SALES_NOTE")
+    end
+  end
+
   local chains = ns.Recipes:GetCatalogChains()
   if chains and chains[1] then
     local top = chains[1]

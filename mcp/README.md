@@ -22,6 +22,7 @@ or set `FA_EXPORT=/path/export.json`.
 - `profession_advice` — coverage and best chains.
 - `farming_plan` — zones/resources.
 - `explain` — formula and assumptions.
+- `fa_sales` — your own auction mail: sold / returned / purchases (market-wide sale vs cancel is still an estimate).
 
 All results are text/JSON. The server does not click, inject input, read pixels or bypass anti-cheat.
 Always treat recommendations as estimates; verify volume, competition and scan age.
