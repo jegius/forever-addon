@@ -105,7 +105,12 @@ function UI:MarkItem(row, itemID)
   local min, recommended, deviation, suspicious = info.min, info.recommendedOutlier, info.deviation, info.suspicious
   local qty = info.qty
 
-  row.lootMark = row.lootMark or row:CreateTexture(nil, "OVERLAY")
+  local mark = rawget(row, "lootMark")
+  if not mark then
+    mark = row:CreateTexture(nil, "OVERLAY")
+    rawset(row, "lootMark", mark)
+  end
+  row.lootMark = mark
   row.lootMark:ClearAllPoints()
   row.lootMark:SetPoint("TOPLEFT", row.icon, "TOPLEFT", 0, 0)
   row.lootMark:SetSize(3, 20)

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.3
+
+- Fixed `MarkItem` texture lookup under metatable-based UI mocks; added data-driven
+  virtualization test (`test_ui_data`).
+
 ## 1.2.2
 
 - Startup markers (`addonVersion`, `loadCount`, `lastLoadAt`) for live verification.
