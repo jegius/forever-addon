@@ -1,4 +1,4 @@
-﻿# Code review — ForeverAddon 1.1.2
+﻿# Code review — ForeverAddon 1.2.0
 
 Дата: 2026-11-27. Ревью проведено по коду в `ForeverAddon/` и по mock/CI-тестам.
 Формат: **Critical / High / Medium / Architecture / Roadmap**.
@@ -226,3 +226,15 @@ H6 (профилирование tooltip-хуков), H7 (мёртвый `StartS
   professions/components. Осталось: farm и полноценная виртуализация всех таблиц.
 - **H6 частично**: кэш category по `priceVersion`; tooltip-хуки ещё нужно профилировать.
 - **H7** (мёртвый `StartScanAll`) и **MCP-сервер** остаются.
+
+
+## Третий roadmap-проход
+
+- **H2 закрыт**: `CatalogChains` + порционный builder, UI callback, sync для export/advisor.
+- **H3 почти закрыт**: виртуализированы flips/recipes/ingredients/chains/professions/components;
+  остался farm (небольшой список).
+- **H6 закрыт частично**: кэш цены/категории по `priceVersion`, меньше вызовов на tooltip.
+- **H7 закрыт**: удалена мёртвая all-professions ветка, `enumerateAllProfessions`.
+- **MCP закрыт**: `mcp/server.js` (stdio), 6 инструментов, CI-тест; `tools.json` — контракт.
+- Локализация advisor/commands/farm/Money/Charts/scan — закрыта.
+- Осталось: проверка в реальном клиенте и профилирование на живых данных.

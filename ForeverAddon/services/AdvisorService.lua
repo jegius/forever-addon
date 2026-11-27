@@ -4,10 +4,12 @@ local addonName, ns = ...
 local Advisor = {}
 ns.Advisor = Advisor
 
+local L = function(key, ...) return ns.L(key, ...) end
+
 local GUARDRAILS = {
-  "Это оценка, не гарантия прибыли.",
-  "Проверяй объём, конкурентов и актуальность скана.",
-  "Нет данных — нет рекомендации; сделай /fa scan.",
+  "ADVICE_GUARD_ESTIMATE",
+  "ADVICE_GUARD_VERIFY",
+  "ADVICE_GUARD_DATA",
 }
 
 local function money(value)
@@ -123,29 +125,28 @@ end
 
 function Advisor:Explain(kind)
   local notes = {
-    flip = "Прибыль = resale * 0.95 - buy. Учитываются медиана, объём и свежесть.",
-    craft = "Себестоимость = сумма цен реагентов. Прибыль = выход * 0.95 - себестоимость; DE — оценка.",
-    farm = "score = узлы * yield * цена / (respawn + travel) * конкуренция.",
-    profession = "Рейтинг строится по положительным цепочкам; покрытие цен показано отдельно.",
+    flip = L("ADVICE_EXPLAIN_FLIP"),
+    craft = L("ADVICE_EXPLAIN_CRAFT"),
+    farm = L("ADVICE_EXPLAIN_FARM"),
+    profession = L("ADVICE_EXPLAIN_PROFESSION"),
   }
-  return notes[kind] or "Недостаточно данных для объяснения."
+  return notes[kind] or L("ADVICE_EXPLAIN_UNKNOWN")
 end
 
 function Advisor:Report()
   local lines = {}
   local health = self:MarketHealth()
   if health then
-    lines[#lines + 1] = string.format("Данные: %d предметов, %d детальных, покрытие рецептов %.0f%%",
-      health.items, health.detailItems, (health.coverage or 0) * 100)
-    if health.stale then lines[#lines + 1] = "Скан старше 24 часов — обнови /fa scan." end
+    lines[#lines + 1] = L("ADVICE_DATA", health.items, health.detailItems, (health.coverage or 0) * 100)
+    if health.stale then lines[#lines + 1] = L("ADVICE_STALE") end
   end
   local flips = self:TopFlips(3)
   for _, flip in ipairs(flips) do
-    lines[#lines + 1] = string.format("Флип: %s %s -> %s, прибыль %s (%s), confidence %.0f%%",
+    lines[#lines + 1] = L("ADVICE_FLIP",
       flip.name, money(flip.buy), money(flip.market), money(flip.profit),
       percent(flip.roi), (flip.confidence or 0) * 100)
   end
-  if #flips == 0 then lines[#lines + 1] = "Флипов нет: нужен детальный скан." end
-  for _, guardrail in ipairs(GUARDRAILS) do lines[#lines + 1] = guardrail end
+  if #flips == 0 then lines[#lines + 1] = L("ADVICE_NO_FLIPS") end
+  for _, guardrail in ipairs(GUARDRAILS) do lines[#lines + 1] = L(guardrail) end
   return lines
 end

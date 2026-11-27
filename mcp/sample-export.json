@@ -1,0 +1,18 @@
+{
+  "generatedAt": 1760000000,
+  "schemaVersion": 2,
+  "health": { "items": 1, "detailItems": 1, "coverage": 0.5, "stale": false },
+  "flips": [
+    { "itemID": 2318, "name": "Light Leather", "buy": 100, "market": 200, "profit": 90, "roi": 0.9, "confidence": 0.7 }
+  ],
+  "chains": [
+    { "name": "Test Bracers", "profession": "Leatherworking", "output": "Test Bracers", "cost": 350, "profit": 600, "roi": 1.7, "expectedProfit": 500 }
+  ],
+  "professions": [
+    { "profession": "Leatherworking", "priced": 1, "totalRecipes": 1, "coverage": 1 }
+  ],
+  "farming": [
+    { "zone": "Test Zone", "kind": "herbs", "nodes": 10, "value": 1000, "score": 5 }
+  ],
+  "guardrails": ["no guaranteed profit"]
+}

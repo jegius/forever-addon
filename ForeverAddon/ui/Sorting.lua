@@ -36,6 +36,29 @@ end
 
 local categoryCache = {}
 local categoryVersion
+local priceCache = {}
+local priceVersion
+
+function UI:GetPriceInfo(itemID)
+  local version = ns.db and tostring(ns.db.priceVersion or 0) or "0"
+  if priceVersion ~= version then
+    priceCache = {}
+    priceVersion = version
+  end
+  local cached = priceCache[itemID]
+  if cached then return cached end
+  local min, recommended, deviation, suspicious = ns.Market:GetLowOutlier(itemID)
+  cached = {
+    recommended = ns.Market:GetRecommendedPrice(itemID),
+    min = min,
+    recommendedOutlier = recommended,
+    deviation = deviation,
+    suspicious = suspicious,
+    qty = ns.Market:GetQuantity(itemID) or 0,
+  }
+  priceCache[itemID] = cached
+  return cached
+end
 
 function UI:GetItemCategory(itemID)
   if not itemID then return "junk", nil, 0 end
@@ -78,8 +101,9 @@ function UI:MarkItem(row, itemID)
     return
   end
   local category = self:GetItemCategory(itemID)
-  local min, recommended, deviation, suspicious = ns.Market:GetLowOutlier(itemID)
-  local qty = ns.Market:GetQuantity(itemID) or 0
+  local info = self:GetPriceInfo(itemID)
+  local min, recommended, deviation, suspicious = info.min, info.recommendedOutlier, info.deviation, info.suspicious
+  local qty = info.qty
 
   row.lootMark = row.lootMark or row:CreateTexture(nil, "OVERLAY")
   row.lootMark:ClearAllPoints()

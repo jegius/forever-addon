@@ -24,3 +24,5 @@ jobs:
           if [ -n "$bad" ]; then echo "$bad"; exit 1; fi
       - name: Unit tests
         run: lua5.1 tests/run.lua
+      - name: MCP contract test
+        run: node mcp/test.js

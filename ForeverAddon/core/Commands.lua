@@ -7,17 +7,16 @@ end
 
 local function printReport()
   local stats = ns.Market:GetStats()
-  ns:Print(string.format("items=%d detail=%d history=%d rows=%d",
-    stats.items, stats.detailItems or 0, stats.historyItems, stats.rows))
+  ns:Print(ns.L("COMMAND_REPORT_ITEMS", stats.items, stats.detailItems or 0, stats.historyItems, stats.rows))
   if stats.lastScan > 0 then
-    ns:Print("last scan: " .. date("%d.%m %H:%M", stats.lastScan))
+    ns:Print(ns.L("COMMAND_REPORT_LAST", date("%d.%m %H:%M", stats.lastScan)))
   end
 
   local flips = ns.Market:GetFlips(5)
   if #flips > 0 then
-    ns:Print("Лучшие лоты:")
+    ns:Print(ns.L("COMMAND_REPORT_BEST"))
     for _, flip in ipairs(flips) do
-      ns:Print(string.format("%s: купить %s -> продать %s, прибыль %s (%s)",
+      ns:Print(ns.L("COMMAND_REPORT_FLIP",
         ns.Util:ItemName(flip.itemID),
         ns.Util:Money(flip.buy, true),
         ns.Util:Money(flip.market, true),
@@ -25,19 +24,19 @@ local function printReport()
         ns.Util:Percent(flip.roi)))
     end
   else
-    ns:Print("Флипов нет: нужен детальный скан (аукцион открыт).")
+    ns:Print(ns.L("COMMAND_REPORT_NO_FLIPS"))
   end
 
   local recipes = ns.Recipes:GetAll()
   if #recipes > 0 then
-    ns:Print("Топ рецептов:")
+    ns:Print(ns.L("COMMAND_REPORT_TOP"))
     for index = 1, math.min(5, #recipes) do
       local recipe = recipes[index]
       if recipe.noPrice then
-        ns:Print(string.format("%s: нет цены", recipe.name))
+        ns:Print(string.format("%s: %s", recipe.name, ns.L("COMMAND_REPORT_NO_PRICE")))
       else
-        ns:Print(string.format("%s: прибыль %s (%s)",
-          recipe.name, ns.Util:Money(recipe.profit, true), ns.Util:Percent(recipe.roi)))
+        ns:Print(ns.L("COMMAND_REPORT_PROFIT", recipe.name,
+          ns.Util:Money(recipe.profit, true), ns.Util:Percent(recipe.roi)))
       end
     end
   end
@@ -127,15 +126,15 @@ local function command(msg)
 
   elseif cmd == "farmstart" then
     ns.Farming:StartSession(tonumber(rest))
-    ns:Print("Farming session started")
+    ns:Print(ns.L("COMMAND_FARM_START"))
 
   elseif cmd == "farmstop" then
     local session = ns.Farming:StopSession()
     if session then
-      ns:Print(string.format("Farming: %s, %s/h", ns.Util:Money(session.value, true),
+      ns:Print(ns.L("COMMAND_FARM_STOP", ns.Util:Money(session.value, true),
         ns.Util:Money(session.goldPerHour, true)))
     else
-      ns:Print("No farming session")
+      ns:Print(ns.L("COMMAND_FARM_NONE"))
     end
 
   elseif cmd == "flips" then

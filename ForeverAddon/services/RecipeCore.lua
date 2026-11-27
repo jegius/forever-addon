@@ -91,56 +91,6 @@ end
 -- Собирает известные рецепты всех профессий без открытия их окон.
 -- Неизученные рецепты API отдаёт только для текущей открытой профессии
 -- (GetAllRecipeIDs), поэтому они добавляются только для неё.
-local function enumerateAllProfessions()
-  if not C_TradeSkillUI then return {} end
-  local result, byLine = {}, {}
-  local currentName, currentProfessionID, currentLine = currentProfessionInfo()
-  local lines = safeCall(C_TradeSkillUI.GetAllProfessionTradeSkillLines)
-
-  local function addProfession(name, professionID, line, recipeIDs)
-    if not name or name == "" then return end
-    local entry = byLine[name]
-    if not entry then
-      entry = { name = name, ids = {}, seen = {} }
-      byLine[name] = entry
-      result[#result + 1] = entry
-    end
-    for _, recipeID in ipairs(recipeIDs or {}) do
-      if type(recipeID) == "number" and recipeID > 0 and not entry.seen[recipeID] then
-        entry.seen[recipeID] = true
-        entry.ids[#entry.ids + 1] = recipeID
-      end
-    end
-  end
-
-  if type(lines) == "table" and #lines > 0 then
-    for _, line in ipairs(lines) do
-      local info = safeCall(C_TradeSkillUI.GetProfessionInfoBySkillLineID, line)
-      if info then
-        local professionID = info.professionID
-        local spells = safeCall(C_TradeSkillUI.GetProfessionSpells, professionID, line)
-        if type(spells) ~= "table" or #spells == 0 then
-          spells = safeCall(C_TradeSkillUI.GetProfessionSpells, professionID)
-        end
-        addProfession(info.professionName, professionID, line, spells)
-      end
-    end
-  end
-
-  -- Для текущей профессии добавляем и неизученные рецепты, если окно уже открыто.
-  if currentName then
-    local currentRecipes = safeCall(C_TradeSkillUI.GetAllRecipeIDs)
-    if type(currentRecipes) == "table" and #currentRecipes > 0 then
-      addProfession(currentName, currentProfessionID, currentLine, currentRecipes)
-    end
-  end
-
-  if #result == 0 and currentName then
-    addProfession(currentName, currentProfessionID, currentLine, enumerateRecipeIDs())
-  end
-  return result
-end
-
 local function buildRecipe(recipeID)
   if not C_TradeSkillUI then return nil end
   local info = safeCall(C_TradeSkillUI.GetRecipeInfo, recipeID)
@@ -270,12 +220,12 @@ ns.RecipeCore = {
   safeCall = safeCall,
   currentProfessionInfo = currentProfessionInfo,
   enumerateRecipeIDs = enumerateRecipeIDs,
-  enumerateAllProfessions = enumerateAllProfessions,
   buildRecipe = buildRecipe,
   cheapestPrice = cheapestPrice,
   compute = compute,
   sortRecipes = sortRecipes,
   catalogPrice = catalogPrice,
 }
+
 
 

@@ -15,10 +15,8 @@ function UI:RefreshProfessions()
   end
   panel.empty:SetText(ns.Recipes:IsCatalogChainsBuilding() and L("CHAIN_BUILDING") or L("PROF_EMPTY"))
   panel.empty:SetShown(#list == 0)
-  panel.child:SetHeight(math.max(1, #list * 24))
 
-  for index, profession in ipairs(list) do
-    local row = self:GetRow(panel, index)
+  local function bind(row, profession)
     row.icon:SetTexture(ns.Util:ItemIcon(profession.outputItemID))
     row.name:SetText(profession.name)
     row.c1:SetText(ns.Util:Money(profession.best, true))
@@ -29,9 +27,8 @@ function UI:RefreshProfessions()
     row.c6:SetText(ns.Util:Percent(profession.roi or 0))
     self:BindItemRow(row, profession.outputItemID)
     self:MarkItem(row, profession.outputItemID)
-    row:Show()
   end
-  UI.HideRows(panel, #list)
+  self:RenderVirtual(panel, list, bind)
 end
 
 function UI:RefreshComponents()
@@ -45,10 +42,8 @@ function UI:RefreshComponents()
   end
   list = filtered
   panel.empty:SetShown(#list == 0)
-  panel.child:SetHeight(math.max(1, #list * 24))
 
-  for index, component in ipairs(list) do
-    local row = self:GetRow(panel, index)
+  local function bind(row, component)
     row.icon:SetTexture(ns.Util:ItemIcon(component.itemID))
     row.name:SetText(component.name)
     row.c1:SetText(component.profession or "—")
@@ -59,9 +54,8 @@ function UI:RefreshComponents()
     row.c6:SetText(tostring(component.usedIn or 0))
     self:BindItemRow(row, component.itemID)
     self:MarkItem(row, component.itemID)
-    row:Show()
   end
-  UI.HideRows(panel, #list)
+  self:RenderVirtual(panel, list, bind)
 end
 
 function UI:RefreshFarm()

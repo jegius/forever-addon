@@ -124,64 +124,22 @@ function Recipes:StartScanAll()
     ns:Print(L("RECIPE_SCANNING"))
     return false
   end
-  if ns.CatalogData and ns.CatalogData.recipes then
-    return self:ScanCatalog()
-  end
-  if not C_TradeSkillUI then
+  if not ns.CatalogData or not ns.CatalogData.recipes then
     ns:Print(L("RECIPE_NEED_PROF"))
     return false
   end
-
-  local professions = Core.enumerateAllProfessions()
-  local entries, seen = {}, {}
-  for _, profession in ipairs(professions) do
-    for _, recipeID in ipairs(profession.ids) do
-      if not seen[recipeID] then
-        seen[recipeID] = true
-        entries[#entries + 1] = { recipeID = recipeID, profession = profession.name }
-      end
-    end
-  end
-  if #entries == 0 then
-    ns:Print(L("RECIPE_ALL_EMPTY"))
-    return false
-  end
-
-  job = {
-    entries = entries,
-    index = 1,
-    raw = {},
-    professionCount = #professions,
-    started = GetTime(),
-  }
-  scanning = true
-  ns:Print(L("RECIPE_SCANNING_ALL", #entries, #professions))
-  for _, profession in ipairs(professions) do
-    ns:Print(L("RECIPE_ALL_PROF", profession.name, #profession.ids))
-  end
-  if ns.UI then ns.UI:ScheduleRefresh() end
-  C_Timer.After(0, function() Recipes:Step() end)
-  return true
+  return self:ScanCatalog()
 end
 
 function Recipes:Step()
-  if not job then return end
-  local total = job.entries and #job.entries or #job.ids
+  if not job or not job.ids then return end
+  local total = #job.ids
   local last = math.min(job.index + 14, total)
 
   for index = job.index, last do
-    if job.entries then
-      local entry = job.entries[index]
-      local ok, record = pcall(Core.buildRecipe, entry.recipeID)
-      if ok and record then
-        record.profession = entry.profession
-        job.raw[#job.raw + 1] = record
-      end
-    else
-      local ok, record = pcall(Core.buildRecipe, job.ids[index])
-      if ok and record then
-        job.raw[#job.raw + 1] = record
-      end
+    local ok, record = pcall(Core.buildRecipe, job.ids[index])
+    if ok and record then
+      job.raw[#job.raw + 1] = record
     end
   end
 
@@ -217,27 +175,9 @@ function Recipes:Finish()
   if not job then return end
   local raw = job.raw
   local elapsed = GetTime() - (job.started or GetTime())
-  local all = job.entries ~= nil
-  local label = all and L("ALL_PROFESSIONS") or job.profession
-
-  if all then
-    local groups = {}
-    for _, record in ipairs(raw) do
-      local professionName = record.profession or "Profession"
-      if not groups[professionName] then groups[professionName] = {} end
-      groups[professionName][#groups[professionName] + 1] = record
-    end
-    local total = 0
-    local professions = 0
-    for professionName, records in pairs(groups) do
-      total = total + storeProfession(professionName, records, elapsed)
-      professions = professions + 1
-    end
-    ns:Print(L("RECIPE_DONE_ALL", total, professions, job and job.professionCount or 0))
-  else
-    local total = storeProfession(label, raw, elapsed)
-    ns:Print(L("RECIPE_DONE", total, label))
-  end
+  local label = job.profession or "Profession"
+  local total = storeProfession(label, raw, elapsed)
+  ns:Print(L("RECIPE_DONE", total, label))
 
   scanning = false
   job = nil

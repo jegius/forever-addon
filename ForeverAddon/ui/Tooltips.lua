@@ -5,11 +5,11 @@ local L = function(key, ...) return ns.L(key, ...) end
 function UI:AddPriceLines(tooltip, itemID)
   if not tooltip or not itemID then return end
   if tooltip.faPriceItem == itemID then return end
-  local recommended = ns.Market:GetRecommendedPrice(itemID)
-  if not recommended then return end
+  local info = UI:GetPriceInfo(itemID)
+  if not info.recommended then return end
   tooltip.faPriceItem = itemID
-  local min, recommendedPrice, deviation, suspicious = ns.Market:GetLowOutlier(itemID)
-  local qty = ns.Market:GetQuantity(itemID) or 0
+  local min, recommendedPrice, deviation, suspicious = info.min, info.recommendedOutlier, info.deviation, info.suspicious
+  local qty = info.qty
   tooltip:AddLine(L("LOOT_RECOMMENDED", ns.Util:Money(recommendedPrice or recommended, true)), 0.3, 1, 0.35)
   tooltip:AddLine(L("LOOT_MIN", ns.Util:Money(min or 0, true)), 1, 1, 1)
   tooltip:AddLine(L("LOOT_VOLUME", qty), 1, 1, 1)

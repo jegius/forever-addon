@@ -31,7 +31,7 @@ local function zoneName(zoneID)
     local ok, name = pcall(GetMapNameByID, zoneID)
     if ok and name then return name end
   end
-  return "zone " .. tostring(zoneID)
+  return L("ZONE_FALLBACK", tostring(zoneID))
 end
 
 local function sourceDB(kind)

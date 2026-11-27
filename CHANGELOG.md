@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0
+
+- H2: async `CatalogChains` builder, chunked 40 recipes/tick, callbacks.
+- H3: virtualized rows for flips/recipes/ingredients/chains/professions/components;
+  global search for main tabs.
+- H6: cached price/category info per priceVersion.
+- H7: removed dead all-professions scan branch and `enumerateAllProfessions`.
+- Full advisor/command/farm localization keys.
+- MCP stdio server (`mcp/server.js`) with market_health/top_flips/craft_plan/
+  profession_advice/farming_plan/explain and CI test.
+- Tests: async chains, auction/detail, MCP contract.
+
 ## 1.1.4
 
 - H2: porтioned `CatalogChains` builder (40 recipes per tick), async request/callback.

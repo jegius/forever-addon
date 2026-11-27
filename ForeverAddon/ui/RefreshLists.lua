@@ -49,11 +49,8 @@ function UI:RefreshFlips()
   end
   flips = filtered
   flips = self:SortData(flips, "flips")
-  panel.empty:SetShown(#flips == 0)
-  panel.child:SetHeight(math.max(1, #flips * 24))
 
-  for index, flip in ipairs(flips) do
-    local row = self:GetRow(panel, index)
+  local function bind(row, flip)
     local itemID = flip.itemID
     row.icon:SetTexture(ns.Util:ItemIcon(itemID))
     row.name:SetText(UI.QualityName(itemID))
@@ -65,9 +62,8 @@ function UI:RefreshFlips()
     row.c6:SetText(string.format("%d%%", math.floor(flip.confidence * 100)))
     self:BindItemRow(row, itemID)
     self:MarkItem(row, itemID)
-    row:Show()
   end
-  UI.HideRows(panel, #flips)
+  self:RenderVirtual(panel, flips, bind)
 end
 
 function UI:RefreshRecipes()

@@ -1,0 +1,10 @@
+{
+  "name": "forever-addon-advisor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Dependency-free MCP stdio server for ForeverAddon exportJson",
+  "bin": { "forever-addon-advisor": "server.js" },
+  "scripts": { "test": "node test.js" },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}
