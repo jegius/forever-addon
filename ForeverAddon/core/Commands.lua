@@ -47,6 +47,7 @@ local function printTest()
     return value and "|cff33ff99OK|r" or "|cffff5555NO|r"
   end
   local interface = select(4, GetBuildInfo())
+  ns:Print("addon: " .. tostring(ns.db and ns.db.addonVersion or "?"))
   ns:Print("build: " .. tostring(interface))
   ns:Print("C_AuctionHouse: " .. ok(C_AuctionHouse ~= nil))
   ns:Print("SendBrowseQuery: " .. ok(C_AuctionHouse and C_AuctionHouse.SendBrowseQuery))

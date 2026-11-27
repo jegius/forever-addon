@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2
+
+- Startup markers (`addonVersion`, `loadCount`, `lastLoadAt`) for live verification.
+- `/fa test` prints the loaded addon version.
+
 ## 1.2.1
 
 - Farm table virtualized; all main tables now use the visible-row pool.
