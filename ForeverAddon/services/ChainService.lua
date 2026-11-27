@@ -84,7 +84,17 @@ function Recipes:GetCatalogChains()
       local direct = outputPrice * outputQty * 0.95 - cost
       local best, mode = direct, "direct"
       local de = nil
-      if ns.Util:IsGearClass(recipe.o) then
+      local classID = ns.Util:ItemClass(recipe.o)
+      local gear = classID == 2 or classID == 4
+      if not gear and classID == 0 and recipe.c then
+        local category = string.lower(recipe.c)
+        gear = category:find("bracer") or category:find("boot") or category:find("glove")
+          or category:find("chest") or category:find("leg") or category:find("belt")
+          or category:find("shoulder") or category:find("helm") or category:find("cloak")
+          or category:find("weapon") or category:find("sword") or category:find("axe")
+          or category:find("mace") or category:find("dagger") or category:find("staff")
+      end
+      if gear then
         de = ns.Disenchant and ns.Disenchant:Estimate(recipe.o, { category = recipe.c }) or nil
       end
       local deProfit
