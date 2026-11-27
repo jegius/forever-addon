@@ -43,127 +43,24 @@ function Recipes:GetChains()
 end
 
 function Recipes:GetCatalogChains()
-  local db = ns.db
-  local version = db and (tostring(db.priceVersion or 0) .. ":" .. tostring(ns.Util:TableSize(db.itemNames or {}))
-    .. ":" .. tostring(db.settings.maxDeviation or 0.5) .. ":" .. tostring(db.settings.minHistoryDays or 2)) or "0"
-  if catalogChainsCache and catalogChainsVersion == version then
-    return catalogChainsCache
-  end
-
-  local result = {}
-  local catalog = ns.CatalogData
-  if not catalog or not catalog.recipes then return result end
-  local settings = db.settings or {}
-
-  for _, recipe in ipairs(catalog.recipes) do
-    local cost, missing = 0, false
-    local ingredients = {}
-    for _, reagent in ipairs(recipe.r or {}) do
-      local price, outlier = Core.catalogPrice(reagent[1], settings)
-      if outlier then
-        missing = true
-      elseif price and price > 0 then
-        local qty = reagent[2] or 1
-        cost = cost + price * qty
-        ingredients[#ingredients + 1] = {
-          itemID = reagent[1],
-          qty = qty,
-          price = price,
-          cost = price * qty,
-          name = ns.Util:ItemName(reagent[1]),
-        }
-      else
-        missing = true
-      end
-    end
-
-    local outputPrice, outputOutlier, outputStats = Core.catalogPrice(recipe.o, settings)
-    if outputOutlier then missing = true end
-    if outputPrice and cost > 0 and not missing then
-      local outputQty = recipe.q or 1
-      local direct = outputPrice * outputQty * 0.95 - cost
-      local best, mode = direct, "direct"
-      local de = nil
-      local classID = ns.Util:ItemClass(recipe.o)
-      local gear = classID == 2 or classID == 4
-      if not gear and classID == 0 and recipe.c then
-        local category = string.lower(recipe.c)
-        gear = category:find("bracer") or category:find("boot") or category:find("glove")
-          or category:find("chest") or category:find("leg") or category:find("belt")
-          or category:find("shoulder") or category:find("helm") or category:find("cloak")
-          or category:find("weapon") or category:find("sword") or category:find("axe")
-          or category:find("mace") or category:find("dagger") or category:find("staff")
-      end
-      if gear then
-        de = ns.Disenchant and ns.Disenchant:Estimate(recipe.o, { category = recipe.c }) or nil
-      end
-      local deProfit
-      if de and de.value > 0 then
-        deProfit = de.value * outputQty * 0.95 - cost
-        if deProfit > best then
-          best, mode = deProfit, "de"
-        end
-      end
-      if best > 0 then
-        local detail = ns.Market:GetDetail(recipe.o)
-      local suspicious = false
-      if detail then
-        local lots = detail.lots or 0
-        if lots < 3 then suspicious = true end
-        if detail.min and detail.min > 0 and (detail.resale or 0) > detail.min * 10 then
-          suspicious = true
-        end
-      elseif not ns.Market:GetMarketValue(recipe.o) then
-        suspicious = true
-      end
-      local lots = detail and detail.lots or 0
-      local volume = outputStats and outputStats.qty or 0
-      local saleProbability = 0.2 + math.min(1, lots / 20) * 0.4 + math.min(1, volume / 100) * 0.4
-      if saleProbability > 1 then saleProbability = 1 end
-      local saleValue = mode == "de" and (de and de.value * outputQty or 0) or outputPrice * outputQty
-      local deposit = math.floor(saleValue * 0.05)
-      local expectedProfit = math.floor(best * saleProbability - deposit)
-      result[#result + 1] = {
-        recipeID = recipe.id,
-        name = ns.Util:SpellName(recipe.id, recipe.n),
-        profession = ns.Util:LocalizeProfession(catalog.professions[recipe.p] or tostring(recipe.p)),
-        professionID = recipe.p,
-        outputItemID = recipe.o,
-        output = ns.Util:ItemName(recipe.o),
-        outputQty = outputQty,
-        cost = cost,
-        ingredients = ingredients,
-        directProfit = direct,
-        deValue = de and (de.value * outputQty * 0.95) or 0,
-        deProfit = deProfit,
-        deEstimated = de and de.estimated or false,
-        profit = best,
-        roi = cost > 0 and (best / cost) or 0,
-        saleProbability = saleProbability,
-        deposit = deposit,
-        expectedProfit = expectedProfit,
-        riskCapital = cost,
-        mode = mode,
-        de = de,
-        suspicious = suspicious,
-        historyDays = outputStats and outputStats.days or 0,
-        skill = recipe.s,
-        skillupHigh = recipe.u,
-        category = recipe.c,
-        kind = recipe.k,
-      }
-      end
-    end
-  end
-
-  table.sort(result, function(a, b)
-    if a.suspicious ~= b.suspicious then return not a.suspicious end
-    return a.profit > b.profit
-  end)
-  catalogChainsCache, catalogChainsVersion = result, version
-  return result
+  return ns.CatalogChains:Get()
 end
 
+function Recipes:GetCatalogChainsSync()
+  return ns.CatalogChains:GetSync()
+end
+
+function Recipes:RequestCatalogChains(callback)
+  return ns.CatalogChains:Request(callback)
+end
+
+function Recipes:IsCatalogChainsBuilding()
+  return ns.CatalogChains:IsBuilding()
+end
+
+function Recipes:HasCatalogChains()
+  return ns.CatalogChains:HasCache()
+end
 function Recipes:GetCraftUseIndex()
   local catalog = ns.CatalogData
   if not catalog or not catalog.recipes then return {} end
@@ -273,4 +170,5 @@ function Recipes:GetCatalogProfessions()
   end)
   return summary
 end
+
 

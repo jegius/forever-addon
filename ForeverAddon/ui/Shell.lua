@@ -39,6 +39,20 @@ function UI:Init()
   helpButton:SetPoint("TOPRIGHT", -30, -4)
   helpButton:SetScript("OnClick", function() UI:ToggleGuide() end)
 
+  local search = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+  search:SetSize(180, 22)
+  search:SetPoint("TOPRIGHT", -60, -4)
+  search:SetAutoFocus(false)
+  search:SetText(UI.filterText or "")
+  search:SetScript("OnTextChanged", function(_, userInput)
+    if userInput then
+      UI.filterText = search:GetText()
+      UI:ScheduleRefresh()
+    end
+  end)
+  search:SetScript("OnEscapePressed", function() search:ClearFocus() end)
+  UI.searchBox = search
+
   if not frame.CloseButton then
     local close
     local okClose = pcall(function()

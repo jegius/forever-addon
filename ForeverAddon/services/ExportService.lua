@@ -37,7 +37,7 @@ function Export:Build()
   local health = advisor and advisor:MarketHealth() or nil
   local flips = advisor and advisor:TopFlips(30) or {}
   local chains = {}
-  for _, chain in ipairs(ns.Recipes:GetCatalogChains()) do
+  for _, chain in ipairs(ns.Recipes:GetCatalogChainsSync()) do
     chains[#chains + 1] = {
       name = chain.name, profession = chain.profession, output = chain.output,
       cost = chain.cost, profit = chain.profit, roi = chain.roi,

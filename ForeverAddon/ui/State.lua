@@ -14,6 +14,7 @@ UI.detailStatusText = nil
 UI.refreshPending = false
 UI.chainsExpanded = {}
 UI.chainSearch = ""
+UI.filterText = ""
 
 UI.SortStates = {
   flips = { key = "profit", dir = -1 },

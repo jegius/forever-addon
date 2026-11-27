@@ -6,6 +6,7 @@ local tests = {
   "tests/test_recipe_scan.lua",
   "tests/test_disenchant.lua",
   "tests/test_catalog.lua",
+  "tests/test_async_chains.lua",
   "tests/test_db.lua",
   "tests/test_util.lua",
   "tests/test_advisor.lua",

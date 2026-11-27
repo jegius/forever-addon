@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.4
+
+- H2: porтioned `CatalogChains` builder (40 recipes per tick), async request/callback.
+- H3: virtualized rows for Recipes/Ingredients/Chains; global search box for main tabs.
+- Category cache by priceVersion; tooltip hot path reduced.
+- Tests: async builder, UI smoke, all existing.
+
 ## 1.1.3
 
 - Preserve DE fallback for custom gear when classID is unavailable (category heuristic).

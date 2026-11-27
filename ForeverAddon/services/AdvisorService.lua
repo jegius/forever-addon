@@ -64,7 +64,7 @@ end
 function Advisor:CraftPlan(budget)
   budget = budget or (ns.db and ns.db.settings.capital) or 100000
   local result = {}
-  for _, chain in ipairs(ns.Recipes:GetCatalogChains()) do
+  for _, chain in ipairs(ns.Recipes:GetCatalogChainsSync()) do
     if chain.cost <= budget and chain.expectedProfit and chain.expectedProfit > 0 then
       result[#result + 1] = {
         name = chain.name,

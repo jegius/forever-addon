@@ -34,18 +34,31 @@ function UI:BindItemRow(row, itemID)
   end)
 end
 
+local categoryCache = {}
+local categoryVersion
+
 function UI:GetItemCategory(itemID)
   if not itemID then return "junk", nil, 0 end
+  local version = ns.db and tostring(ns.db.priceVersion or 0) or "0"
+  if categoryVersion ~= version then
+    categoryCache = {}
+    categoryVersion = version
+  end
+  local cached = categoryCache[itemID]
+  if cached then return cached.category, cached.median, cached.qty end
   local median = ns.Market:GetMarketValue(itemID)
     or ns.Market:GetResale(itemID)
     or ns.Market:GetPrice(itemID)
   local qty = ns.Market:GetQuantity(itemID) or 0
   local craft = ns.Recipes and ns.Recipes:GetCraftUseIndex()[itemID] or nil
-  if not median then return "unknown", nil, qty end
-  if median >= 100000 then return "very", median, qty end
-  if craft then return "craft", median, qty end
-  if median >= 100 then return "medium", median, qty end
-  return "junk", median, qty
+  local category
+  if not median then category = "unknown"
+  elseif median >= 100000 then category = "very"
+  elseif craft then category = "craft"
+  elseif median >= 100 then category = "medium"
+  else category = "junk" end
+  categoryCache[itemID] = { category = category, median = median, qty = qty }
+  return category, median, qty
 end
 
 function UI:CategoryColor(category)

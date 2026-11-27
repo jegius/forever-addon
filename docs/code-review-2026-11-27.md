@@ -215,3 +215,14 @@ production-ready.
 H6 (профилирование tooltip-хуков), H7 (мёртвый `StartScanAll`), MCP-инструменты поверх
 `exportJson`.
 
+
+## Второй roadmap-проход
+
+- **H2 закрыт**: `CatalogChains` строит цепочки порциями по 40 рецептов через `C_Timer.After(0)`;
+  UI получает callback и показывает «Считаю цепочки порциями», без фриза. `GetCatalogChainsSync`
+  оставлен для `/fa export`/advisor.
+- **H3 частично закрыт**: виртуализация строк для Recipes/Ingredients/Chains (пул видимых строк,
+  перерисовка по scroll), глобальный поиск в шапке для flips/recipes/ingredients/chains/
+  professions/components. Осталось: farm и полноценная виртуализация всех таблиц.
+- **H6 частично**: кэш category по `priceVersion`; tooltip-хуки ещё нужно профилировать.
+- **H7** (мёртвый `StartScanAll`) и **MCP-сервер** остаются.

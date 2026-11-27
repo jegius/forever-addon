@@ -112,6 +112,7 @@ ns.LocaleTables.enUS = {
   CHAIN_ROI = "ROI",
   CHAIN_OUTPUT = "Output",
   CHAIN_EMPTY = "No chains. Recipes and auction prices are required.",
+  CHAIN_BUILDING = "Building chains in chunks… the window stays responsive.",
   CHAIN_HINT = "Disenchant is estimated by ilvl/quality; result is random. + expands ingredients; LMB on an ingredient opens the auction. ! — few lots/suspicious price. \"Fetch prices\" scans up to 50 items.",
   CHAIN_TIP_BUY = "Buy reagents:",
   CHAIN_TIP_CRAFT = "Craft: %s (cost %s)",

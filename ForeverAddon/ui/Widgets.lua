@@ -65,6 +65,12 @@ function UI.CreateRow(parent)
   return row
 end
 
+function UI:MatchesFilter(text)
+  local term = string.lower(UI.filterText or "")
+  if term == "" then return true end
+  return string.find(string.lower(tostring(text or "")), term, 1, true) ~= nil
+end
+
 function UI.CreateScrollPanel(panel, bottomOffset)
   local scroll = CreateFrame("ScrollFrame", nil, panel)
   scroll:SetPoint("TOPLEFT", 0, -26)
@@ -100,6 +106,9 @@ function UI.CreateScrollPanel(panel, bottomOffset)
   scroll:SetScript("OnScrollRangeChanged", updateBar)
   scroll:SetScript("OnVerticalScroll", function(_, offset)
     if bar:GetValue() ~= offset then bar:SetValue(offset) end
+    if panel.virtualLines then
+      UI:RenderVirtual(panel, panel.virtualLines, panel.virtualBinder)
+    end
   end)
   scroll:SetScript("OnMouseWheel", function(self, delta)
     local current = self:GetVerticalScroll()
@@ -112,6 +121,35 @@ function UI.CreateScrollPanel(panel, bottomOffset)
   end)
 
   return scroll, child
+end
+
+function UI:RenderVirtual(panel, lines, binder)
+  panel.virtualLines = lines
+  panel.virtualBinder = binder
+  panel.rows = panel.rows or {}
+  local scroll = panel.scroll
+  local offset = scroll and scroll:GetVerticalScroll() or 0
+  local height = scroll and scroll:GetHeight() or 360
+  local first = math.max(1, math.floor(offset / 24) + 1)
+  local last = math.min(#lines, first + math.ceil(height / 24) + 2)
+  local slot = 0
+
+  for index = first, last do
+    slot = slot + 1
+    local row = panel.rows[slot]
+    if not row then
+      row = UI.CreateRow(panel.child)
+      panel.rows[slot] = row
+    end
+    row:ClearAllPoints()
+    row:SetPoint("TOPLEFT", panel.child, "TOPLEFT", 0, -(index - 1) * 24)
+    row:SetPoint("TOPRIGHT", panel.child, "TOPRIGHT", -4, -(index - 1) * 24)
+    binder(row, lines[index], index)
+    row:Show()
+  end
+  for index = slot + 1, #panel.rows do panel.rows[index]:Hide() end
+  panel.child:SetHeight(math.max(1, #lines * 24))
+  if panel.empty then panel.empty:SetShown(#lines == 0) end
 end
 
 function UI:UpdateScrollbar(panel)

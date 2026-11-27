@@ -43,6 +43,11 @@ function UI:RefreshFlips()
   for _, flip in ipairs(flips) do
     flip.name = UI.QualityName(flip.itemID)
   end
+  local filtered = {}
+  for _, flip in ipairs(flips) do
+    if UI:MatchesFilter(flip.name) then filtered[#filtered + 1] = flip end
+  end
+  flips = filtered
   flips = self:SortData(flips, "flips")
   panel.empty:SetShown(#flips == 0)
   panel.child:SetHeight(math.max(1, #flips * 24))
@@ -68,11 +73,15 @@ end
 function UI:RefreshRecipes()
   local panel = UI.panels.recipes
   local list = self:SortData(ns.Recipes:GetAll(), "recipes")
-  panel.empty:SetShown(#list == 0)
-  panel.child:SetHeight(math.max(1, #list * 24))
+  local filtered = {}
+  for _, recipe in ipairs(list) do
+    if UI:MatchesFilter((recipe.name or "") .. " " .. (recipe.source or "")) then
+      filtered[#filtered + 1] = recipe
+    end
+  end
+  list = filtered
 
-  for index, recipe in ipairs(list) do
-    local row = self:GetRow(panel, index)
+  local function bind(row, recipe)
     row.icon:SetTexture(recipe.icon or 134400)
     row.name:SetText(recipe.name)
     row.c1:SetText(ns.Util:Money(recipe.cost, true))
@@ -91,9 +100,8 @@ function UI:RefreshRecipes()
     row.c6:SetText(recipe.catalog and "—" or (recipe.learned and L("RECIPE_YES") or L("RECIPE_NO")))
     self:BindItemRow(row, recipe.outputItemID)
     self:MarkItem(row, recipe.outputItemID)
-    row:Show()
   end
-  UI.HideRows(panel, #list)
+  self:RenderVirtual(panel, list, bind)
 
   local summary = ns.Recipes:GetProfessionSummary()
   if #summary > 0 then
@@ -112,11 +120,15 @@ function UI:RefreshIngredients()
     ingredient.name = UI.QualityName(ingredient.itemID)
   end
   list = self:SortData(list, "ingredients")
-  panel.empty:SetShown(#list == 0)
-  panel.child:SetHeight(math.max(1, #list * 24))
+  local filtered = {}
+  for _, ingredient in ipairs(list) do
+    if UI:MatchesFilter((ingredient.name or "") .. " " .. (ingredient.source or "")) then
+      filtered[#filtered + 1] = ingredient
+    end
+  end
+  list = filtered
 
-  for index, ingredient in ipairs(list) do
-    local row = self:GetRow(panel, index)
+  local function bind(row, ingredient)
     row.icon:SetTexture(ns.Util:ItemIcon(ingredient.itemID))
     row.name:SetText(UI.QualityName(ingredient.itemID))
     row.c1:SetText(ns.Util:Money(ingredient.price, true))
@@ -127,8 +139,7 @@ function UI:RefreshIngredients()
     row.c6:SetText(ns.Util:FormatNumber(math.floor(ingredient.score or 0)))
     self:BindItemRow(row, ingredient.itemID)
     self:MarkItem(row, ingredient.itemID)
-    row:Show()
   end
-  UI.HideRows(panel, #list)
+  self:RenderVirtual(panel, list, bind)
 end
 

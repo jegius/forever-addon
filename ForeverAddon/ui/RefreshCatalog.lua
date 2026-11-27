@@ -5,6 +5,15 @@ local L = function(key, ...) return ns.L(key, ...) end
 function UI:RefreshProfessions()
   local panel = UI.panels.professions
   local list = self:SortData(ns.Recipes:GetCatalogProfessions(), "professions")
+  local filtered = {}
+  for _, profession in ipairs(list) do
+    if UI:MatchesFilter(profession.name) then filtered[#filtered + 1] = profession end
+  end
+  list = filtered
+  if not ns.Recipes:HasCatalogChains() then
+    ns.Recipes:RequestCatalogChains(function() UI:ScheduleRefresh() end)
+  end
+  panel.empty:SetText(ns.Recipes:IsCatalogChainsBuilding() and L("CHAIN_BUILDING") or L("PROF_EMPTY"))
   panel.empty:SetShown(#list == 0)
   panel.child:SetHeight(math.max(1, #list * 24))
 
@@ -28,6 +37,13 @@ end
 function UI:RefreshComponents()
   local panel = UI.panels.components
   local list = self:SortData(ns.Recipes:GetCraftableComponents(), "components")
+  local filtered = {}
+  for _, component in ipairs(list) do
+    if UI:MatchesFilter((component.name or "") .. " " .. (component.profession or "")) then
+      filtered[#filtered + 1] = component
+    end
+  end
+  list = filtered
   panel.empty:SetShown(#list == 0)
   panel.child:SetHeight(math.max(1, #list * 24))
 

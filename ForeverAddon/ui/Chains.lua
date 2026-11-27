@@ -42,12 +42,13 @@ function UI:RefreshChains()
   local panel = UI.panels.chains
   local list = self:SortData(ns.Recipes:GetCatalogChains(), "chains")
   local term = string.lower(UI.chainSearch or "")
+  local global = string.lower(UI.filterText or "")
   local filtered = {}
   for _, chain in ipairs(list) do
     local haystack = string.lower((chain.name or "") .. " " .. (chain.profession or "") .. " " .. (chain.output or ""))
-    if term == "" or string.find(haystack, term, 1, true) then
-      filtered[#filtered + 1] = chain
-    end
+    local chainMatch = term == "" or string.find(haystack, term, 1, true)
+    local globalMatch = global == "" or string.find(haystack, global, 1, true)
+    if chainMatch and globalMatch then filtered[#filtered + 1] = chain end
   end
   local lines = {}
   for _, chain in ipairs(filtered) do
@@ -59,11 +60,11 @@ function UI:RefreshChains()
     end
   end
 
-  panel.empty:SetShown(#lines == 0)
-  panel.child:SetHeight(math.max(1, #lines * 24))
-
-  for index, line in ipairs(lines) do
-    local row = self:GetRow(panel, index)
+  if #list == 0 and not ns.Recipes:HasCatalogChains() then
+    ns.Recipes:RequestCatalogChains(function() UI:ScheduleRefresh() end)
+  end
+  panel.empty:SetText(ns.Recipes:IsCatalogChainsBuilding() and L("CHAIN_BUILDING") or L("CHAIN_EMPTY"))
+  local function bind(row, line)
     if line.kind == "chain" then
       local chain = line.chain
       row.icon:ClearAllPoints()
@@ -114,8 +115,8 @@ function UI:RefreshChains()
       self:MarkItem(row, ingredient.itemID)
       row.expandButton:Hide()
     end
-    row:Show()
   end
-  UI.HideRows(panel, #lines)
+
+  self:RenderVirtual(panel, lines, bind)
 end
 
