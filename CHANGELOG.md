@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.3
+
+- Preserve DE fallback for custom gear when classID is unavailable (category heuristic).
+
 ## 1.1.2
 
 - Auction/Detail feature detection + mock integration tests.
