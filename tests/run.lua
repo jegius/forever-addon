@@ -6,6 +6,7 @@ local tests = {
   "tests/test_advisor.lua",
   "tests/test_farming.lua",
   "tests/test_load_all.lua",
+  "tests/test_ui_smoke.lua",
 }
 
 for _, path in ipairs(tests) do

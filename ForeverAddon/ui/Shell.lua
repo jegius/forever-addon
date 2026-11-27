@@ -26,7 +26,7 @@ function UI:Init()
   frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
   frame:Hide()
 
-  if frame.TitleText then
+  if type(frame.TitleText) == "table" and frame.TitleText.SetText then
     frame.TitleText:SetText(L("TITLE"))
   else
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")

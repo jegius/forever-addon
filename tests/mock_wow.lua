@@ -3,6 +3,9 @@ local ns = {}
 
 local function object()
   local o = {}
+  o.CreateTexture = function() return object() end
+  o.CreateFontString = function() return object() end
+  o.CreateAnimationGroup = function() return object() end
   setmetatable(o, {
     __index = function(_, key)
       local f = function() return nil end
