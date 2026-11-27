@@ -74,12 +74,20 @@ local function rankZones(kind, itemMap)
         if price > bestValue then bestValue = price; bestNode = nodeID end
       end
       if count > 0 then
+        local settings = (ns.db and ns.db.settings) or {}
+        local yield = settings.farmYield or 1.5
+        local respawn = settings.farmRespawn or 45
+        local travel = settings.farmTravel or 30
+        local competition = settings.farmCompetition or 1
+        local score = total * yield / (respawn + travel) * competition
         result[#result + 1] = {
           zoneID = zoneID,
           zone = zoneName(zoneID),
           kind = kind,
           nodes = count,
           value = total,
+          score = score,
+          perHour = math.floor(score * 60),
           bestNode = bestNode,
           bestItemID = bestNode and itemMap[bestNode] or nil,
           bestName = bestNode and ns.Util:ItemName(itemMap[bestNode]) or "—",
@@ -87,7 +95,7 @@ local function rankZones(kind, itemMap)
       end
     end
   end
-  table.sort(result, function(a, b) return a.value > b.value end)
+  table.sort(result, function(a, b) return a.score > b.score end)
   return result
 end
 
@@ -136,5 +144,77 @@ function Farming:GetSources()
     herbs = sourceDB("herbs") ~= nil,
     mining = sourceDB("mining") ~= nil,
     gathermateData = GatherMateData2HerbDB ~= nil or GatherMateData2MineDB ~= nil,
+    leatherZones = type(Farming.leatherZones) == "table",
   }
 end
+
+function Farming:SetLeatherZones(dataset)
+  self.leatherZones = dataset
+end
+
+function Farming:GetLeatherZones(limit)
+  local result = {}
+  for _, entry in ipairs(self.leatherZones or {}) do
+    local price = ns.Market:GetMarketValue(entry.itemID) or ns.Market:GetPrice(entry.itemID) or 0
+    result[#result + 1] = {
+      zone = entry.zone,
+      itemID = entry.itemID,
+      name = ns.Util:ItemName(entry.itemID),
+      price = price,
+      score = price * (entry.weight or 1),
+    }
+  end
+  table.sort(result, function(a, b) return a.score > b.score end)
+  local max = limit or 20
+  while #result > max do table.remove(result) end
+  return result
+end
+
+function Farming:StartSession(zoneID)
+  local db = ns.db
+  if not db then return nil end
+  db.farmingSession = {
+    zoneID = zoneID,
+    zone = zoneID and zoneName(zoneID) or "—",
+    startedAt = time(),
+    casts = 0,
+    loot = {},
+    value = 0,
+  }
+  return db.farmingSession
+end
+
+function Farming:AddLoot(itemID, qty)
+  local db = ns.db
+  local session = db and db.farmingSession
+  if not session then return end
+  qty = qty or 1
+  session.casts = (session.casts or 0) + 1
+  session.loot[itemID] = (session.loot[itemID] or 0) + qty
+  session.value = (session.value or 0) + (ns.Market:GetMarketValue(itemID) or 0) * qty
+end
+
+function Farming:StopSession()
+  local db = ns.db
+  local session = db and db.farmingSession
+  if not session then return nil end
+  session.endedAt = time()
+  session.duration = math.max(1, session.endedAt - session.startedAt)
+  session.goldPerHour = session.value / session.duration * 3600
+  db.farmingSessions = db.farmingSessions or {}
+  db.farmingSessions[#db.farmingSessions + 1] = session
+  while #db.farmingSessions > 50 do table.remove(db.farmingSessions, 1) end
+  db.farmingSession = nil
+  return session
+end
+
+function Farming:GetSessions(limit)
+  local sessions = (ns.db and ns.db.farmingSessions) or {}
+  local result = {}
+  for index = #sessions, 1, -1 do
+    result[#result + 1] = sessions[index]
+    if limit and #result >= limit then break end
+  end
+  return result
+end
+

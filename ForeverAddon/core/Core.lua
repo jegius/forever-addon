@@ -144,6 +144,27 @@ local function command(msg)
   elseif cmd == "bagtest" then
     ns.UI:PrintBagDiagnostics()
 
+  elseif cmd == "advice" or cmd == "advisor" then
+    for _, line in ipairs(ns.Advisor:Report()) do ns:Print(line) end
+
+  elseif cmd == "export" then
+    local json = ns.Export:Store()
+    ns:Print(string.format("JSON snapshot: %d bytes; exportAt=%s", #json,
+      date("%d.%m %H:%M", ns.db.exportAt or time())))
+
+  elseif cmd == "farmstart" then
+    ns.Farming:StartSession(tonumber(rest))
+    ns:Print("Farming session started")
+
+  elseif cmd == "farmstop" then
+    local session = ns.Farming:StopSession()
+    if session then
+      ns:Print(string.format("Farming: %s, %s/h", ns.Util:Money(session.value, true),
+        ns.Util:Money(session.goldPerHour, true)))
+    else
+      ns:Print("No farming session")
+    end
+
   elseif cmd == "flips" then
     ns.UI:Open()
     ns.UI:SetTab("flips")

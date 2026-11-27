@@ -2,19 +2,48 @@
 ## Title: ForeverAddon
 ## Notes: Auction house analyst and gold-making helper for World of Warcraft: Forever: price scans, flips, charts, recipe and farming estimates.
 ## Notes-ruRU: Аналитик аукциона и помощник заработка для World of Warcraft: Forever: сканы цен, флипы, графики, оценка рецептов и фарма.
-## Version: 1.0.4
+## Version: 1.1.0
 ## SavedVariables: ForeverAddonDB
 
+locales/ruRU.lua
+locales/enUS.lua
 Locales.lua
-DB.lua
-Catalog.lua
-Util.lua
-Market.lua
-Farming.lua
-Disenchant.lua
-Auction.lua
-Detail.lua
-Recipes.lua
-Charts.lua
-UI.lua
-Core.lua
+config/Database.lua
+data/CatalogData.lua
+data/CatalogChunk_01.lua
+data/CatalogChunk_02.lua
+data/CatalogChunk_03.lua
+data/CatalogChunk_04.lua
+data/CatalogChunk_05.lua
+data/CatalogChunk_06.lua
+data/CatalogChunk_07.lua
+data/CatalogChunk_08.lua
+data/CatalogChunk_09.lua
+data/CatalogChunk_10.lua
+util/ItemService.lua
+services/PriceService.lua
+services/MarketService.lua
+services/FlipService.lua
+services/FarmingService.lua
+services/DisenchantService.lua
+services/AuctionService.lua
+services/DetailService.lua
+services/RecipeCore.lua
+services/RecipeService.lua
+services/RecipeListService.lua
+services/ChainService.lua
+services/ComponentService.lua
+services/AdvisorService.lua
+services/ExportService.lua
+ui/Charts.lua
+ui/State.lua
+ui/Widgets.lua
+ui/Sorting.lua
+ui/Tooltips.lua
+ui/Panels.lua
+ui/Shell.lua
+ui/RefreshLists.lua
+ui/Chains.lua
+ui/RefreshCatalog.lua
+ui/Guide.lua
+core/Core.lua

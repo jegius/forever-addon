@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.1.0
+
+- Архитектура разбита на сервисы: Price/Market/Flip/Chain/Recipe/Component/Farming/Advisor/Export.
+- Каждый Lua-файл ≤ 300 строк; каталог разбит на 10 чанков.
+- PriceService: volume-weighted median, p25/p75, MAD, confidence.
+- Приоритетное докачивание цен по ожидаемой прибыли; покрытие профессий.
+- DE: исправлены MATERIALS-алиасы (почему DE всегда был 0), itemMeta-кэш, estimated-флаг.
+- Реалистичная прибыль: saleProbability, deposit, expectedProfit, riskCapital.
+- Фарм: score с yield/respawn/travel/competition, сессии и золото/час, датасет кожи.
+- UI: поиск по цепочкам, ожидаемая прибыль и формула в подсказке.
+- DB: schemaVersion=2, миграции, лимит истории/записей.
+- `/fa advice`, `/fa export`, `/fa farmstart`, `/fa farmstop`.
+- tests/ + GitHub Actions (luac, лимит строк, unit-тесты).
+- LICENSE MIT.
+
 ## 1.0.4
 
 - Popup-подсказка вместо громоздких меток на иконках инвентаря.

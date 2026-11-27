@@ -1,24 +1,14 @@
 -- ForeverAddon — сканирование аукциона (browse summary)
 local addonName, ns = ...
-
 local Auction = {}
 ns.Auction = Auction
-
 local L = function(key, ...) return ns.L(key, ...) end
-
 local frame = CreateFrame("Frame")
 local scanning = false
 local scan = nil
 local ahOpen = false
 local timeoutTimer = nil
 local requestPending = false
-
-local BROWSE_EVENTS = {
-  "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED",
-  "AUCTION_HOUSE_BROWSE_RESULTS_ADDED",
-  "AUCTION_HOUSE_BROWSE_FAILURE",
-}
-
 local function setEvents(register)
   if register then
     frame:RegisterEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED")
@@ -30,15 +20,12 @@ local function setEvents(register)
     frame:UnregisterEvent("AUCTION_HOUSE_BROWSE_FAILURE")
   end
 end
-
 function Auction:IsScanning()
   return scanning
 end
-
 function Auction:GetLastScan()
   return ns.db and ns.db.scanLast or 0
 end
-
 function Auction:GetCooldown()
   local db = ns.db
   if not db then return 0 end
@@ -47,7 +34,6 @@ function Auction:GetCooldown()
   if left < 0 then return 0 end
   return left
 end
-
 function Auction:RefreshOpenState()
   ahOpen = false
   if AuctionHouseFrame and AuctionHouseFrame:IsShown() then
@@ -56,11 +42,9 @@ function Auction:RefreshOpenState()
     ahOpen = true
   end
 end
-
 function Auction:IsOpen()
   return ahOpen
 end
-
 function Auction:Init()
   frame:SetScript("OnEvent", function(_, event, ...)
     Auction:OnEvent(event, ...)
@@ -73,14 +57,12 @@ function Auction:Init()
     Auction:RefreshOpenState()
   end)
 end
-
 function Auction:OnEvent(event, ...)
   if event == "AUCTION_HOUSE_SHOW" then
     ahOpen = true
     if ns.UI then
       ns.UI:ScheduleRefresh()
     end
-
   elseif event == "AUCTION_HOUSE_CLOSED" or event == "AUCTION_HOUSE_DISABLED" then
     ahOpen = false
     if scanning then
@@ -90,28 +72,23 @@ function Auction:OnEvent(event, ...)
       ns.Detail:Cancel(L("AH_CLOSED"))
     end
     if ns.UI then ns.UI:ScheduleRefresh() end
-
   elseif event == "PLAYER_ENTERING_WORLD" then
     self:RefreshOpenState()
-
   elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED" then
     if scanning then
       self:ProcessResults(C_AuctionHouse.GetBrowseResults())
     end
-
   elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_ADDED" then
     if scanning then
       local added = ...
       self:ProcessResults(added)
     end
-
   elseif event == "AUCTION_HOUSE_BROWSE_FAILURE" then
     if scanning then
       self:Abort(L("ERR"))
     end
   end
 end
-
 function Auction:CanStart()
   if not ahOpen then
     return false, L("SCAN_NEED_AH")
@@ -128,18 +105,15 @@ function Auction:CanStart()
   end
   return true
 end
-
 function Auction:StartScan()
   local canStart, reason = self:CanStart()
   if not canStart then
     ns:Print(reason)
     return false
   end
-
   if ns.Detail and ns.Detail:IsActive() then
     ns.Detail:Cancel(L("DETAIL_CANCELLED", L("SCAN_STARTED")))
   end
-
   scan = {
     items = {},
     count = 0,
@@ -148,7 +122,6 @@ function Auction:StartScan()
   scanning = true
   requestPending = false
   setEvents(true)
-
   if timeoutTimer then
     timeoutTimer:Cancel()
   end
@@ -157,7 +130,6 @@ function Auction:StartScan()
       Auction:Abort(L("SCAN_TIMEOUT"))
     end
   end)
-
   ns:Print(L("SCAN_STARTED"))
   if ns.UI then ns.UI:SetScanStatus(L("SCAN_STARTED")) end
   local ok = pcall(C_AuctionHouse.SendBrowseQuery, {
@@ -173,11 +145,9 @@ function Auction:StartScan()
   if ns.UI then ns.UI:ScheduleRefresh() end
   return true
 end
-
 function Auction:AddResults(results)
   if not results then return end
   local items = scan.items
-
   for _, result in ipairs(results) do
     local key = result.itemKey
     if key and key.itemID then
@@ -188,7 +158,6 @@ function Auction:AddResults(results)
       local itemSuffix = key.itemSuffix or 0
       local battlePet = key.battlePetSpeciesID or 0
       local isGear = ns.Util:IsGearClass(itemID)
-
       -- Base keys for trade goods/consumables; gear variants aggregate by itemID,
       -- remembering the cheapest variant key for the detail scan.
       if itemID and minPrice and minPrice > 0 and quantity > 0 and battlePet == 0 then
@@ -225,16 +194,13 @@ function Auction:AddResults(results)
     end
   end
 end
-
 function Auction:ProcessResults(results)
   if not scanning then return end
   scan.count = scan.count + (results and #results or 0)
   self:AddResults(results)
-
   if ns.UI then
     ns.UI:SetScanStatus(L("SCAN_PROGRESS", scan.count))
   end
-
   local hasFull = true
   if C_AuctionHouse.HasFullBrowseResults then
     hasFull = C_AuctionHouse.HasFullBrowseResults() and true or false
@@ -245,7 +211,6 @@ function Auction:ProcessResults(results)
     self:RequestMore()
   end
 end
-
 function Auction:RequestMore()
   if requestPending or not scanning then return end
   requestPending = true
@@ -256,30 +221,25 @@ function Auction:RequestMore()
     end
   end)
 end
-
 function Auction:Finish()
   if not scanning then return end
   scanning = false
   requestPending = false
   setEvents(false)
-
   if timeoutTimer then
     timeoutTimer:Cancel()
     timeoutTimer = nil
   end
-
   local elapsed = GetTime() - (scan.started or GetTime())
   local data = scan.items
   local count = scan.count
   scan = nil
-
   ns.Market:ApplyScan(data, count, elapsed)
   ns:Print(L("SCAN_DONE", count, ns.Util:TableSize(data), elapsed))
   if ns.UI then
     ns.UI:SetScanStatus("")
     ns.UI:ScheduleRefresh()
   end
-
   local shortlist = ns.Market:GetCandidates(ns.db and ns.db.settings.detailItems or 60)
   if #shortlist > 0 and ns.Detail then
     ns.Detail:Scan(shortlist, function()
@@ -287,7 +247,6 @@ function Auction:Finish()
     end, L("DETAIL_LABEL"))
   end
 end
-
 function Auction:Abort(reason)
   if not scanning then return end
   scanning = false
@@ -304,7 +263,6 @@ function Auction:Abort(reason)
     ns.UI:ScheduleRefresh()
   end
 end
-
 function Auction:GetStatusText()
   if scanning then
     return L("SCAN_BTN_BUSY")

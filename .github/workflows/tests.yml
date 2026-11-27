@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lua:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.1
+      - name: Syntax check
+        run: |
+          set -e
+          find ForeverAddon -name '*.lua' -print0 | xargs -0 -n1 luac5.1 -p
+      - name: Line limit (300)
+        run: |
+          set -e
+          bad=$(find ForeverAddon -name '*.lua' -exec awk 'END { if (NR > 300) print FILENAME ":" NR }' {} \;)
+          if [ -n "$bad" ]; then echo "$bad"; exit 1; fi
+      - name: Unit tests
+        run: lua5.1 tests/run.lua

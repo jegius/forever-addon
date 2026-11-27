@@ -1,6 +1,5 @@
 -- ForeverAddon — утилиты: предметы, деньги, форматирование
 local addonName, ns = ...
-
 local Util = {}
 ns.Util = Util
 
@@ -85,6 +84,9 @@ local function getInfo(itemID)
   end
 
   itemCache[itemID] = entry
+  if ns.DB and ns.DB.SetItemMeta then
+    ns.DB:SetItemMeta(itemID, { quality = entry.quality, itemLevel = entry.itemLevel, classID = entry.classID, subclassID = entry.subclassID })
+  end
   return entry
 end
 

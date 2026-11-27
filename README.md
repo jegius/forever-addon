@@ -7,6 +7,9 @@
 **Аддон ничего не нажимает, не читает экран и не управляет персонажем.** Он работает только с
 разрешённым игровым API и SavedVariables; все действия в игре выполняет человек.
 
+> **Статус: v1.1.0.** Архитектура разбита на сервисы; каждый Lua-файл ≤ 300 строк. Есть unit-тесты
+> и GitHub Actions. Код проверен статически и mock-тестами, в игре — ещё нет; сделайте бэкап `WTF`.
+
 ## Возможности
 
 - Скан аукциона через `C_AuctionHouse.SendBrowseQuery`.
@@ -24,6 +27,10 @@
   демпинге; без громоздких меток на иконках.
 - Лучшие зоны фарма трав/руды по GatherMate2 и рейтинг видов кожи.
 - Сортировка всех таблиц, скроллбары, подсказки колонок и вкладок, кнопка `?` с описанием вкладки.
+- **Поиск/фильтр цепочек** по рецепту, профессии или выходу.
+- **Советник** `/fa advice`: здоровье рынка, топ флипов с confidence, guardrails.
+- **JSON-экспорт** `/fa export` для локального MCP/LLM (без HTTP из аддона).
+- **Сессии фарма** `/fa farmstart` / `/fa farmstop`: золото/час и история.
 - Локализация ruRU/enUS.
 
 ## Установка
@@ -58,36 +65,52 @@ TOC: `## Interface: 16001`, `## SavedVariables: ForeverAddonDB`.
 /fa history <дни>   — глубина истории
 /fa test            — диагностика
 /fa bagtest         — диагностика Baganator/хуков (для отладки)
+/fa advice          — безопасный советник (без автокликов)
+/fa export          — JSON-снимок в SavedVariables для локального MCP/LLM
+/fa farmstart [zone]— старт сессии фарма
+/fa farmstop        — стоп сессии, золото/час
 ```
 
 ## Структура
 
 ```text
 ForeverAddon/
-  ForeverAddon.toc  — манифест
-  Locales.lua       — ruRU/enUS
-  DB.lua            — SavedVariables, миграции
-  Catalog.lua       — статический каталог рецептов (снимок)
-  Util.lua          — предметы, деньги, профессии
-  Market.lua        — история, медианы, флипы, статистика
-  Farming.lua       — зоны фарма по GatherMate2
-  Disenchant.lua    — оценка распыления
-  Auction.lua       — browse-скан
-  Detail.lua        — детальный скан лотов
-  Recipes.lua       — рецепты, компоненты, цепочки
-  Charts.lua        — график
-  UI.lua            — окно, вкладки, сортировка, подсказки
-  Core.lua          — события и slash-команды
+  ForeverAddon.toc
+  Locales.lua / locales/{ruRU,enUS}.lua
+  config/Database.lua          — SavedVariables, schemaVersion, миграции, pruning
+  data/CatalogData.lua         — метаданные каталога
+  data/CatalogChunk_01..10.lua — каталог рецептов (по ≤300 строк)
+  util/ItemService.lua         — предметы, деньги, профессии
+  services/PriceService.lua    — volume-weighted median, p25/p75, MAD, confidence
+  services/MarketService.lua   — история, apply scan/detail, prune
+  services/FlipService.lua     — флипы и группы фарма
+  services/DisenchantService.lua — DE-таблицы и fallback
+  services/FarmingService.lua  — зоны, сессии фарма
+  services/AuctionService.lua  — browse-скан
+  services/DetailService.lua   — детальный скан
+  services/RecipeCore.lua      — общие расчёты рецептов
+  services/RecipeService.lua   — сканирование профессий
+  services/RecipeListService.lua — списки/ингредиенты/сводка
+  services/ChainService.lua    — цепочки, покрытие, приоритет цен
+  services/ComponentService.lua — крафтящиеся компоненты
+  services/AdvisorService.lua  — безопасный rule-based советник
+  services/ExportService.lua   — JSON для локального MCP/LLM
+  ui/State.lua, Widgets.lua, Sorting.lua, Panels.lua, Shell.lua,
+  ui/Tooltips.lua, RefreshLists.lua, Chains.lua, RefreshCatalog.lua,
+  ui/Guide.lua, Charts.lua
+  core/Core.lua                — события и slash-команды
 ```
 
 ## Ключевые формулы
 
 - Флип: `profit = resale * 0.95 - buy`, `ROI = profit / buy`.
-- Цепочка: `cost = Σ(reagent_price * qty)`, `profit = max(direct_sale, de_value) * 0.95 - cost`.
-- DE: ожидание по таблицам Classic (ilvl/качество), с приблизительным fallback.
-- Зона фарма: `Σ(число узлов * цена ресурса)`, узлы из GatherMate2.
+- Цепочка: `cost = Σ(reagent_median * qty)`, `profit = max(direct_sale, de_value) * 0.95 - cost`.
+- Ожидаемая прибыль: `profit * saleProbability - deposit`; вероятность оценивается по лотам/объёму.
+- DE: ожидание по таблицам Classic (ilvl/качество); fallback помечается `estimated`.
+- Зона фарма: `nodes * yield * price / (respawn + travel) * competition`.
 - Выброс: после 2 дней истории/3 сэмплов цена, отличающаяся от медианы более чем на 50%,
   отбрасывается (`settings.maxDeviation`).
+- PriceService: volume-weighted median, p25/p75, MAD, confidence.
 
 ## Ограничения
 
@@ -98,29 +121,34 @@ ForeverAddon/
 - API не позволяет выбрать конкретный лот: клик по предмету открывает поиск в аукционе.
 - Нет автоматизации кликов, чтения пикселей, эмуляции ввода и обхода античита.
 
-## Разработка и ревью
+## Разработка, тесты и ревью
 
-Проект использует Lua 5.1-совместимый код WoW. Для статической проверки можно использовать
-`luaparse`/`luac`, для UI — mock-тесты; в репозитории намеренно нет бинарных данных клиента.
+```bash
+lua5.1 tests/run.lua
+```
+
+CI: `.github/workflows/tests.yml` — `luac5.1 -p` для всех файлов, лимит 300 строк и unit-тесты.
+Тесты покрывают PriceService, DE, каталог/цепочки, БД/миграции, advisor/export и загрузку TOC.
 
 Полезные точки для code review:
-- `Auction.lua`/`Detail.lua` — троттлинг запросов и watchdog.
-- `Market.lua` — медианы, выбросы, кэш.
-- `Recipes.lua` — каталог, покрытие цен, цепочки.
-- `Disenchant.lua` — таблицы и fallback.
-- `UI.lua` — сортировка, раскрытие, подсказки, popup.
+- `services/PriceService.lua` — медианы/квантили/confidence.
+- `services/MarketService.lua` — применение сканов, prune.
+- `services/ChainService.lua` — себестоимость, покрытие, ожидаемая прибыль.
+- `services/DisenchantService.lua` — таблицы и fallback.
+- `ui/` — shell, панели, таблицы, подсказки.
+
+AI-советник: [docs/ai-advisor.md](docs/ai-advisor.md).
 
 ## Данные и источники
 
 - Каталог: [professions-data.json](https://maf2414.github.io/wow-forever-talents/professions-data.json)
-  (WoW Forever Build 69876).
+  (WoW Forever Build 1.60.1.69876).
 - GatherMate2 — локальные SavedVariables пользователя.
-- Снимок каталога лежит в `Catalog.lua` и не содержит персональных данных.
+- Снимок каталога лежит в `data/` и не содержит персональных данных.
 
 ## Лицензия
 
-Лицензия не задана. Если планируете публиковать форк/использовать код — добавьте LICENSE
-(например, MIT) по согласованию с автором.
+MIT — см. [LICENSE](LICENSE).
 
 ## Безопасность
 

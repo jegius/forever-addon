@@ -34,6 +34,31 @@ local MATERIALS = {
   nexus = { id = 20725, name = "Nexus Crystal" },
 }
 
+local strangeDust = MATERIALS.strangeDust
+local soulDust = MATERIALS.soulDust
+local visionDust = MATERIALS.visionDust
+local dreamDust = MATERIALS.dreamDust
+local illusionDust = MATERIALS.illusionDust
+local lesserMagic = MATERIALS.lesserMagic
+local greaterMagic = MATERIALS.greaterMagic
+local lesserAstral = MATERIALS.lesserAstral
+local greaterAstral = MATERIALS.greaterAstral
+local lesserMystic = MATERIALS.lesserMystic
+local greaterMystic = MATERIALS.greaterMystic
+local lesserNether = MATERIALS.lesserNether
+local greaterNether = MATERIALS.greaterNether
+local lesserEternal = MATERIALS.lesserEternal
+local greaterEternal = MATERIALS.greaterEternal
+local smallGlimmer = MATERIALS.smallGlimmer
+local largeGlimmer = MATERIALS.largeGlimmer
+local smallGlowing = MATERIALS.smallGlowing
+local largeGlowing = MATERIALS.largeGlowing
+local smallRadiant = MATERIALS.smallRadiant
+local largeRadiant = MATERIALS.largeRadiant
+local smallBrilliant = MATERIALS.smallBrilliant
+local largeBrilliant = MATERIALS.largeBrilliant
+local nexus = MATERIALS.nexus
+
 -- {min,max, dust={key,prob,qtyMin,qtyMax}, essence={...}, shard={...}}
 local ARMOR = {
   {5, 15, {strangeDust, 0.80, 1, 2}, {lesserMagic, 0.20, 1, 2}},
@@ -122,9 +147,15 @@ function Disenchant:Estimate(itemID, options)
   options = options or {}
   local item = ns.Util:GetItem(itemID)
   if not item then return nil end
+  local meta = ns.DB and ns.DB.GetItemMeta and ns.DB:GetItemMeta(itemID) or nil
   local classID = item.classID
   local quality = item.quality or 1
   local itemLevel = item.itemLevel or 0
+  if meta then
+    if not classID or classID == 0 then classID = meta.classID end
+    if (not quality or quality < 2) and meta.quality then quality = meta.quality end
+    if itemLevel <= 0 then itemLevel = meta.itemLevel or 0 end
+  end
   if classID ~= 2 and classID ~= 4 then
     if isGearCategory(options.category) then
       classID = 4
@@ -151,17 +182,16 @@ function Disenchant:Estimate(itemID, options)
   for index = 3, #row do
     local spec = row[index]
     if spec then
-      local key, probability, qtyMin, qtyMax = spec[1], spec[2], spec[3], spec[4]
+      local material, probability, qtyMin, qtyMax = spec[1], spec[2], spec[3], spec[4]
       local expected = probability * ((qtyMin + qtyMax) / 2)
-      if expected > 0 then
-        local material = MATERIALS[key]
-        local price = material and materialPrice(material) or 0
+      if expected > 0 and material then
+        local price = materialPrice(material)
         if price <= 0 then missing = true end
         local value = price * expected
         materials[#materials + 1] = {
-          key = key,
-          itemID = material and material.id,
-          name = material and ns.Util:ItemName(material.id) or key,
+          key = material.id,
+          itemID = material.id,
+          name = ns.Util:ItemName(material.id),
           qty = expected,
           qtyMin = qtyMin,
           qtyMax = qtyMax,
@@ -188,3 +218,4 @@ function Disenchant:Estimate(itemID, options)
 end
 
 return Disenchant
+
