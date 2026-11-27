@@ -81,10 +81,8 @@ function UI:RefreshFarm()
   end
 
   panel.empty:SetShown(#lines == 0)
-  panel.child:SetHeight(math.max(1, #lines * 24))
 
-  for index, line in ipairs(lines) do
-    local row = self:GetRow(panel, index)
+  local function bind(row, line)
     row.expandButton:Hide()
     if line.header then
       row.icon:SetTexture(nil)
@@ -130,8 +128,7 @@ function UI:RefreshFarm()
       self:BindItemRow(row, item.itemID)
       self:MarkItem(row, item.itemID)
     end
-    row:Show()
   end
-  UI.HideRows(panel, #lines)
+  self:RenderVirtual(panel, lines, bind)
 end
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- Farm table virtualized; all main tables now use the visible-row pool.
+- Final roadmap localization/MCP/H7 verification pass.
+
 ## 1.2.0
 
 - H2: async `CatalogChains` builder, chunked 40 recipes/tick, callbacks.
