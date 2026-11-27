@@ -2,7 +2,6 @@
 local addonName, ns = ...
 local Util = {}
 ns.Util = Util
-
 local itemCache = {}
 local classCache = {}
 local pending = {}
@@ -13,6 +12,7 @@ itemFrame:SetScript("OnEvent", function(_, _, itemID)
   if pending[itemID] then
     pending[itemID] = nil
     itemCache[itemID] = nil
+    classCache[itemID] = nil
     if ns.db and ns.db.itemNames and C_Item and C_Item.GetItemInfo then
       local name = C_Item.GetItemInfo(itemID)
       if name then ns.db.itemNames[itemID] = name end
@@ -77,7 +77,7 @@ local function getInfo(itemID)
     icon = instant[5] or info[10],
   }
 
-  if (not entry.name or not entry.classID or entry.classID <= 0 or entry.itemLevel <= 0)
+  if (not entry.name or not entry.classID or entry.classID <= 0)
     and C_Item.RequestLoadItemDataByID then
     pending[itemID] = true
     C_Item.RequestLoadItemDataByID(itemID)

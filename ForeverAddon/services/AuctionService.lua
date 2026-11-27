@@ -10,14 +10,14 @@ local ahOpen = false
 local timeoutTimer = nil
 local requestPending = false
 local function setEvents(register)
-  if register then
-    frame:RegisterEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED")
-    frame:RegisterEvent("AUCTION_HOUSE_BROWSE_RESULTS_ADDED")
-    frame:RegisterEvent("AUCTION_HOUSE_BROWSE_FAILURE")
-  else
-    frame:UnregisterEvent("AUCTION_HOUSE_BROWSE_RESULTS_UPDATED")
-    frame:UnregisterEvent("AUCTION_HOUSE_BROWSE_RESULTS_ADDED")
-    frame:UnregisterEvent("AUCTION_HOUSE_BROWSE_FAILURE")
+  local events = {
+    "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED",
+    "AUCTION_HOUSE_BROWSE_RESULTS_ADDED",
+    "AUCTION_HOUSE_BROWSE_FAILURE",
+  }
+  for _, event in ipairs(events) do
+    if register then pcall(frame.RegisterEvent, frame, event)
+    else pcall(frame.UnregisterEvent, frame, event) end
   end
 end
 function Auction:IsScanning()
@@ -50,9 +50,9 @@ function Auction:Init()
     Auction:OnEvent(event, ...)
   end)
   frame:RegisterEvent("AUCTION_HOUSE_SHOW")
-  frame:RegisterEvent("AUCTION_HOUSE_CLOSED")
-  frame:RegisterEvent("AUCTION_HOUSE_DISABLED")
-  frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  pcall(frame.RegisterEvent, frame, "AUCTION_HOUSE_CLOSED")
+  pcall(frame.RegisterEvent, frame, "AUCTION_HOUSE_DISABLED")
+  pcall(frame.RegisterEvent, frame, "PLAYER_ENTERING_WORLD")
   C_Timer.After(2, function()
     Auction:RefreshOpenState()
   end)
@@ -76,6 +76,10 @@ function Auction:OnEvent(event, ...)
     self:RefreshOpenState()
   elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_UPDATED" then
     if scanning then
+      if not C_AuctionHouse.GetBrowseResults then
+        self:Abort(L("NO_AH_API"))
+        return
+      end
       self:ProcessResults(C_AuctionHouse.GetBrowseResults())
     end
   elseif event == "AUCTION_HOUSE_BROWSE_RESULTS_ADDED" then

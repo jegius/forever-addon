@@ -1,6 +1,7 @@
 local addonName, ns = ...
 local Recipes = ns.Recipes
 local Core = ns.RecipeCore
+local L = function(key, ...) return ns.L(key, ...) end
 local scanning = false
 local job = nil
 
@@ -171,13 +172,13 @@ function Recipes:Step()
   for index = job.index, last do
     if job.entries then
       local entry = job.entries[index]
-      local ok, record = pcall(buildRecipe, entry.recipeID)
+      local ok, record = pcall(Core.buildRecipe, entry.recipeID)
       if ok and record then
         record.profession = entry.profession
         job.raw[#job.raw + 1] = record
       end
     else
-      local ok, record = pcall(buildRecipe, job.ids[index])
+      local ok, record = pcall(Core.buildRecipe, job.ids[index])
       if ok and record then
         job.raw[#job.raw + 1] = record
       end
@@ -250,7 +251,7 @@ function Recipes:Finish()
     end
     for _, reagent in ipairs(record.reagents or {}) do
       local itemID = reagent.itemID
-      if itemID and not cheapestPrice(reagent) and not seen[itemID] then
+      if itemID and not Core.cheapestPrice(reagent) and not seen[itemID] then
         seen[itemID] = true
         missing[#missing + 1] = itemID
       end
@@ -285,5 +286,6 @@ function Recipes:RecomputeAll()
     end
   end
 end
+
 
 

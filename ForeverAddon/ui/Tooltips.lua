@@ -5,9 +5,9 @@ local L = function(key, ...) return ns.L(key, ...) end
 function UI:AddPriceLines(tooltip, itemID)
   if not tooltip or not itemID then return end
   if tooltip.faPriceItem == itemID then return end
-  tooltip.faPriceItem = itemID
   local recommended = ns.Market:GetRecommendedPrice(itemID)
   if not recommended then return end
+  tooltip.faPriceItem = itemID
   local min, recommendedPrice, deviation, suspicious = ns.Market:GetLowOutlier(itemID)
   local qty = ns.Market:GetQuantity(itemID) or 0
   tooltip:AddLine(L("LOOT_RECOMMENDED", ns.Util:Money(recommendedPrice or recommended, true)), 0.3, 1, 0.35)
@@ -63,70 +63,5 @@ function UI:InitTooltips()
       end)
     end
   end
-end
-
-function UI:MarkBagButton(button)
-  if not button then return end
-  if button.faLootMark then button.faLootMark:Hide() end
-  if button.faBorder then
-    for _, edge in ipairs(button.faBorder) do edge:Hide() end
-  end
-end
-
-function UI:ScanContainerFrames()
-  if not GetContainerNumSlots then return end
-  for bag = 0, 4 do
-    local ok, count = pcall(GetContainerNumSlots, bag)
-    if ok and count then
-      for slot = 1, count do
-        local button = _G["ContainerFrame" .. bag .. "Item" .. slot]
-          or _G["ContainerFrameCombinedBagsItem" .. slot]
-        if button then self:MarkBagButton(button) end
-      end
-    end
-  end
-end
-
-function UI:InitBagMarks()
-  if self.bagHooked then return end
-  if type(hooksecurefunc) ~= "function" then return end
-
-  local hooked = false
-  if type(ContainerFrameItemButton_OnEnter) == "function" then
-    pcall(hooksecurefunc, "ContainerFrameItemButton_OnEnter", function(button)
-      UI:MarkBagButton(button)
-    end)
-    hooked = true
-  end
-  if type(ContainerFrameItemButton_Update) == "function" then
-    pcall(hooksecurefunc, "ContainerFrameItemButton_Update", function(button)
-      UI:MarkBagButton(button)
-    end)
-    hooked = true
-  elseif ContainerFrameItemButtonMixin and ContainerFrameItemButtonMixin.Update then
-    pcall(hooksecurefunc, ContainerFrameItemButtonMixin, "Update", function(button)
-      UI:MarkBagButton(button)
-    end)
-    hooked = true
-  end
-  if not self.bagScanFrame then
-    local frame = CreateFrame("Frame")
-    frame:RegisterEvent("BAG_UPDATE_DELAYED")
-    frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-    frame:SetScript("OnEvent", function()
-      UI:ScanContainerFrames()
-      UI:InitBaganator()
-    end)
-    self.bagScanFrame = UI.frame
-  end
-  if not hooked then return end
-  self.bagHooked = true
-  self:ScanContainerFrames()
-end
-
-function UI:InitBaganator()
-  -- Метка вынесена в popup-подсказку: не создаём громоздкий corner-widget.
-  self.baganatorRegistered = true
-  self.baganatorError = nil
 end
 

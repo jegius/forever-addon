@@ -111,22 +111,7 @@ function UI:Init()
     end
   end
   tryInit("tooltips", function() self:InitTooltips() end)
-  tryInit("bags", function() self:InitBagMarks() end)
-  tryInit("baganator", function() self:InitBaganator() end)
   pcall(self.SetTab, self, "scan")
-  C_Timer.After(1, function()
-    UI:InitTooltips()
-    UI:InitBagMarks()
-    UI:InitBaganator()
-  end)
-  C_Timer.After(5, function()
-    UI:InitBaganator()
-  end)
-  C_Timer.After(10, function()
-    UI:InitBaganator()
-    UI:InitBagMarks()
-    UI:ScanContainerFrames()
-  end)
 end
 
 function UI:SetTab(key)
@@ -234,27 +219,7 @@ function UI:RefreshScan()
 end
 
 function UI:PrintBagDiagnostics()
-  if not self.bagHooked then pcall(function() self:InitBagMarks() end) end
-  if not self.baganatorRegistered then pcall(function() self:InitBaganator() end) end
-  pcall(function() self:ScanContainerFrames() end)
-  ns:Print("Baganator: " .. tostring(Baganator ~= nil))
-  ns:Print("Baganator API: " .. tostring(Baganator and Baganator.API ~= nil))
-  if Baganator and Baganator.API then
-    if Baganator.API.IsCornerWidgetActive then
-      ns:Print("forever_value active: " .. tostring(Baganator.API.IsCornerWidgetActive("forever_value")))
-    end
-    if Baganator.API.GetCurrentCornerForWidget then
-      ns:Print("forever_value corner: " .. tostring(Baganator.API.GetCurrentCornerForWidget("forever_value")))
-    end
-  end
-  ns:Print("bagHooked: " .. tostring(self.bagHooked))
-  ns:Print("baganatorRegistered: " .. tostring(self.baganatorRegistered))
-  ns:Print("tooltipHooked: " .. tostring(self.tooltipHooked))
-  local sample = ns.Market:GetRecommendedPrice(10940)
-  ns:Print("sample 10940 recommended: " .. tostring(sample))
-  if self.baganatorError then
-    ns:Print("baganatorError: " .. tostring(self.baganatorError))
-  end
+  ns:Print("bag marks disabled: inventory prices are shown in the item tooltip")
 end
 
 function UI:ShowChart(itemID)

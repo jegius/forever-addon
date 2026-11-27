@@ -48,7 +48,7 @@ function Recipes:GetIngredients()
         if reagent.required ~= false then
           local bestID, bestPrice = nil, nil
           for _, choice in ipairs(reagent.choices or {}) do
-            local price = ns.Market:GetPrice(choice)
+            local price = ns.PriceService:GetRecommendedPrice(choice) or ns.Market:GetPrice(choice)
             if price and (not bestPrice or price < bestPrice) then
               bestID, bestPrice = choice, price
             end

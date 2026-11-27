@@ -42,11 +42,15 @@ end
 
 function Detail:Init()
   frame:SetScript("OnEvent", function(_, event, ...) Detail:OnEvent(event, ...) end)
-  frame:RegisterEvent("ITEM_SEARCH_RESULTS_ADDED")
-  frame:RegisterEvent("ITEM_SEARCH_RESULTS_UPDATED")
-  frame:RegisterEvent("COMMODITY_SEARCH_RESULTS_ADDED")
-  frame:RegisterEvent("COMMODITY_SEARCH_RESULTS_UPDATED")
-  frame:RegisterEvent("COMMODITY_SEARCH_RESULTS_RECEIVED")
+  for _, event in ipairs({
+    "ITEM_SEARCH_RESULTS_ADDED",
+    "ITEM_SEARCH_RESULTS_UPDATED",
+    "COMMODITY_SEARCH_RESULTS_ADDED",
+    "COMMODITY_SEARCH_RESULTS_UPDATED",
+    "COMMODITY_SEARCH_RESULTS_RECEIVED",
+  }) do
+    pcall(frame.RegisterEvent, frame, event)
+  end
 end
 
 function Detail:IsActive()

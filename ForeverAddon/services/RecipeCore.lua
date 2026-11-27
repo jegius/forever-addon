@@ -15,16 +15,17 @@ local function catalogPrice(itemID, settings)
 end
 
 local SOURCE_LABELS = {
-  [1] = "Тренер",
-  [2] = "Дроп",
-  [3] = "Продавец",
-  [4] = "Квест",
-  [5] = "Открытие",
+  [1] = "SOURCE_TRAINER",
+  [2] = "SOURCE_DROP",
+  [3] = "SOURCE_VENDOR",
+  [4] = "SOURCE_QUEST",
+  [5] = "SOURCE_DISCOVERY",
 }
 
 local function sourceLabel(sourceType)
   if sourceType == nil then return "—" end
-  return SOURCE_LABELS[sourceType] or ("источник " .. tostring(sourceType))
+  local key = SOURCE_LABELS[sourceType]
+  return key and L(key) or ("источник " .. tostring(sourceType))
 end
 
 local function safeCall(fn, ...)
@@ -35,6 +36,7 @@ local function safeCall(fn, ...)
 end
 
 local function currentProfessionInfo()
+  if not C_TradeSkillUI then return nil end
   local base = safeCall(C_TradeSkillUI.GetBaseProfessionInfo)
   if base and base.professionName then
     return base.professionName, base.professionID
@@ -62,6 +64,7 @@ local function currentProfessionInfo()
 end
 
 local function enumerateRecipeIDs()
+  if not C_TradeSkillUI then return {} end
   local ids, seen = {}, {}
   local function add(value)
     if type(value) == "number" and value > 0 and not seen[value] then
@@ -89,6 +92,7 @@ end
 -- Неизученные рецепты API отдаёт только для текущей открытой профессии
 -- (GetAllRecipeIDs), поэтому они добавляются только для неё.
 local function enumerateAllProfessions()
+  if not C_TradeSkillUI then return {} end
   local result, byLine = {}, {}
   local currentName, currentProfessionID, currentLine = currentProfessionInfo()
   local lines = safeCall(C_TradeSkillUI.GetAllProfessionTradeSkillLines)
@@ -138,9 +142,10 @@ local function enumerateAllProfessions()
 end
 
 local function buildRecipe(recipeID)
+  if not C_TradeSkillUI then return nil end
   local info = safeCall(C_TradeSkillUI.GetRecipeInfo, recipeID)
   if not info then
-    local spell = safeCall(C_Spell.GetSpellInfo, recipeID)
+    local spell = C_Spell and safeCall(C_Spell.GetSpellInfo, recipeID)
     if not spell then return nil end
     info = {
       recipeID = recipeID,
@@ -206,7 +211,7 @@ end
 local function cheapestPrice(reagent)
   local best = nil
   for _, itemID in ipairs(reagent.choices or {}) do
-    local price = ns.Market:GetPrice(itemID)
+    local price = ns.PriceService:GetRecommendedPrice(itemID) or ns.Market:GetPrice(itemID)
     if price and price > 0 and (not best or price < best) then best = price end
   end
   return best

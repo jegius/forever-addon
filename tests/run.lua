@@ -1,5 +1,7 @@
 local tests = {
   "tests/test_price.lua",
+  "tests/test_market.lua",
+  "tests/test_recipe_scan.lua",
   "tests/test_disenchant.lua",
   "tests/test_catalog.lua",
   "tests/test_db.lua",

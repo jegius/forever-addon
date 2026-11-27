@@ -1,6 +1,7 @@
 local addonName, ns = ...
 local Recipes = ns.Recipes
 local Core = ns.RecipeCore
+local L = function(key, ...) return ns.L(key, ...) end
 local catalogChainsCache, catalogChainsVersion
 local craftUseCache, craftUseVersion
 
@@ -43,7 +44,8 @@ end
 
 function Recipes:GetCatalogChains()
   local db = ns.db
-  local version = db and ((tostring(db.priceVersion or 0)) .. ":" .. tostring(ns.Util:TableSize(db.itemNames or {}))) or "0"
+  local version = db and (tostring(db.priceVersion or 0) .. ":" .. tostring(ns.Util:TableSize(db.itemNames or {}))
+    .. ":" .. tostring(db.settings.maxDeviation or 0.5) .. ":" .. tostring(db.settings.minHistoryDays or 2)) or "0"
   if catalogChainsCache and catalogChainsVersion == version then
     return catalogChainsCache
   end
@@ -150,19 +152,16 @@ function Recipes:GetCatalogChains()
 end
 
 function Recipes:GetCraftUseIndex()
-  local db = ns.db
-  local version = db and ((tostring(db.priceVersion or 0)) .. ":" .. tostring(ns.Util:TableSize(db.itemNames or {}))) or "0"
+  local catalog = ns.CatalogData
+  if not catalog or not catalog.recipes then return {} end
+  local version = tostring(catalog.build or "catalog") .. ":" .. tostring(#catalog.recipes)
   if craftUseCache and craftUseVersion == version then return craftUseCache end
 
   local index = {}
-  for _, chain in ipairs(self:GetCatalogChains()) do
-    if not chain.suspicious and chain.profit >= 1000 then
-      for _, ingredient in ipairs(chain.ingredients or {}) do
-        local current = index[ingredient.itemID]
-        if not current or chain.profit > current then
-          index[ingredient.itemID] = chain.profit
-        end
-      end
+  for _, recipe in ipairs(catalog.recipes) do
+    for _, reagent in ipairs(recipe.r or {}) do
+      local itemID = reagent[1]
+      if itemID then index[itemID] = true end
     end
   end
   craftUseCache, craftUseVersion = index, version

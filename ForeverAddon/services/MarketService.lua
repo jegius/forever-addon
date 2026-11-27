@@ -2,6 +2,10 @@ local addonName, ns = ...
 local Market = {}
 ns.Market = Market
 
+local function nowDay()
+  return math.floor(time() / 86400)
+end
+
 function Market:RecordSample(itemID, minPrice, qty)
   if not minPrice or minPrice <= 0 then return end
   if not ns.Util:IsTrackedItem(itemID) then return end

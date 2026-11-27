@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Code review fixes: `MarketService` missing `nowDay`, `RecipeService` missing
+  `L`/`Core.buildRecipe`/`Core.cheapestPrice`, stale `bagScanFrame` (bag hooks removed).
+- Static craft-use index (no full chain calc on every tooltip).
+- `ItemService`: no request storm for itemLevel 0, classCache invalidation.
+- Median prices in recipe/ingredient calculations.
+- Auction/Detail optional-event registration and `GetBrowseResults` guard.
+- Review document: `docs/code-review-2026-11-27.md`.
+
 ## 1.1.0
 
 - Архитектура разбита на сервисы: Price/Market/Flip/Chain/Recipe/Component/Farming/Advisor/Export.

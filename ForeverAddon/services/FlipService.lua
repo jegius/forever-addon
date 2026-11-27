@@ -48,7 +48,8 @@ end
 
 function FlipService:GetFlips(limit)
   local db = ns.db
-  local settings = db.settings
+  if not db then return {} end
+  local settings = db.settings or {}
   local flips = {}
 
   for itemID, entry in pairs(db.prices) do
@@ -116,6 +117,7 @@ end
 
 function FlipService:GetFarmGroups()
   local db = ns.db
+  if not db then return {} end
   local groups = {}
 
   for itemID, entry in pairs(db.prices) do

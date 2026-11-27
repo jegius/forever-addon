@@ -23,7 +23,8 @@ function UI:ShowChainTooltip(row, chain)
       GameTooltip:AddLine(L("CHAIN_TIP_DE_EST"), 0.8, 0.8, 0.5)
     end
   else
-    GameTooltip:AddLine(L("CHAIN_TIP_SELL", chain.output or "—", ns.Util:Money(chain.deValue > 0 and chain.deValue or (chain.cost + chain.profit), true)), 1, 1, 1)
+    local saleValue = chain.mode == "de" and chain.deValue or (chain.cost + chain.profit)
+    GameTooltip:AddLine(L("CHAIN_TIP_SELL", chain.output or "—", ns.Util:Money(saleValue, true)), 1, 1, 1)
   end
   GameTooltip:AddLine(L("CHAIN_TIP_RESULT", ns.Util:Money(chain.profit, true), ns.Util:Percent(chain.roi)), 0.3, 1, 0.35)
   if chain.expectedProfit then
